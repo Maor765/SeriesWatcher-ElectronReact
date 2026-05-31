@@ -1,0 +1,5 @@
+{
+  "extends": "@electron-toolkit/tsconfig/tsconfig.web.json",
+  "include": ["src/**/*", "shared/**/*"],
+  "compilerOptions": { "composite": true, "outDir": "dist", "paths": { "@shared/*": ["./shared/*"], "@/*": ["./src/*"] } }
+}

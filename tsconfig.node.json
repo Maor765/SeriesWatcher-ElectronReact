@@ -1,0 +1,5 @@
+{
+  "extends": "@electron-toolkit/tsconfig/tsconfig.node.json",
+  "include": ["electron/**/*", "shared/**/*", "tests/**/*"],
+  "compilerOptions": { "composite": true, "outDir": "dist-electron", "paths": { "@shared/*": ["./shared/*"] } }
+}
