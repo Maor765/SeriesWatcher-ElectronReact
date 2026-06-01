@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
-import type { Series, SeriesList, Theme } from '../../shared/types'
-import { SERIES_LISTS } from '../../shared/types'
+import type { Series, SeriesList, Theme } from '../shared/types'
+import { SERIES_LISTS } from '../shared/types'
 import TopBar from './components/TopBar'
 import SeriesPanel from './components/SeriesPanel'
 import SeriesModal from './components/SeriesModal'
