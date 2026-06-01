@@ -14,7 +14,7 @@ const EMPTY_COUNTS = () =>
 export default function App() {
   const [theme, setTheme]   = useState<Theme>('dark')
   const [allSeries, setAll] = useState<Record<SeriesList, Series[]>>(
-    () => Object.fromEntries(SERIES_LISTS.map(l => [l, []])) as Record<SeriesList, Series[]>
+    () => Object.fromEntries(SERIES_LISTS.map(l => [l, [] as Series[]])) as Record<SeriesList, Series[]>
   )
   const [counts, setCounts]       = useState<Record<SeriesList, number>>(EMPTY_COUNTS)
   const [searchQuery, setSearch]  = useState('')
