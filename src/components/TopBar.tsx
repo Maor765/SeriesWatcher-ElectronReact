@@ -1,6 +1,6 @@
 import React from 'react'
-import type { Theme, SeriesList } from '../../../shared/types'
-import { SERIES_LISTS } from '../../../shared/types'
+import type { Theme, SeriesList } from '../../shared/types'
+import { SERIES_LISTS } from '../../shared/types'
 
 // Panel colour map (must match themes.css)
 export const PANEL_COLORS: Record<SeriesList, { pc: string; pd: string; icon: string }> = {

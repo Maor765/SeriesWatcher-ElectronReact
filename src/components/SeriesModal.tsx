@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import type { Series, SeriesList } from '../../../shared/types'
-import { SERIES_LISTS, toInputDate, fromInputDate, todayYYYYMMDD } from '../../../shared/types'
+import type { Series, SeriesList } from '../../shared/types'
+import { SERIES_LISTS, toInputDate, fromInputDate, todayYYYYMMDD } from '../../shared/types'
 
 interface Props {
   entry: Series | null             // null = add mode

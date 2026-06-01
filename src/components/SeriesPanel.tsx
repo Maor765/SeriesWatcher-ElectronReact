@@ -1,5 +1,5 @@
-import type { Series, SeriesList } from '../../../shared/types'
-import { isPastDate, toInputDate, HIGHLIGHT_LISTS } from '../../../shared/types'
+import type { Series, SeriesList } from '../../shared/types'
+import { isPastDate, toInputDate, HIGHLIGHT_LISTS } from '../../shared/types'
 import { PANEL_COLORS } from './TopBar'
 
 interface Props {
