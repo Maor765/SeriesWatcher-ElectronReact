@@ -10,6 +10,7 @@ export default defineConfig({
   },
   preload: {
     plugins: [externalizeDepsPlugin()],
+    resolve: { alias: { '@shared': resolve('shared') } },
     build: { lib: { entry: resolve('electron/preload/index.ts') } }
   },
   renderer: {

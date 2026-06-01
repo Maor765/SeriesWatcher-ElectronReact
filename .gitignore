@@ -4,3 +4,4 @@ out/
 dist-electron/
 *.db
 *.log
+*.tsbuildinfo
