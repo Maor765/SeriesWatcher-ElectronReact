@@ -2,6 +2,9 @@ import type { Series, SeriesList } from '../../shared/types'
 import { isPastDate, toInputDate, HIGHLIGHT_LISTS, SERIES_LISTS } from '../../shared/types'
 import { PANEL_COLORS } from './TopBar'
 
+// Lists that use Google search instead of MyEpisodes
+const GOOGLE_SEARCH_LISTS = new Set<SeriesList>(['Upcoming Movies', 'Unknown'])
+
 interface Props {
   list: SeriesList
   series: Series[]
@@ -15,11 +18,13 @@ export default function SeriesPanel({ list, series, onEdit, onDelete, onMove }: 
   const dateHeader = list === 'Unknown' ? 'Last Check' : 'Date'
   const highlightPast = HIGHLIGHT_LISTS.has(list)
   const otherLists = SERIES_LISTS.filter(l => l !== list)
+  const useGoogle = GOOGLE_SEARCH_LISTS.has(list)
 
-  async function handleMyEp(name: string) {
-    await window.electronAPI.shell.openExternal(
-      `https://www.myepisodes.com/search/?tvshow=${encodeURIComponent(name)}`
-    )
+  async function handleSearch(name: string) {
+    const url = useGoogle
+      ? `https://www.google.com/search?q=${encodeURIComponent(name)}`
+      : `https://www.google.com/search?q=site:myepisodes.com+${encodeURIComponent(name)}`
+    await window.electronAPI.shell.openExternal(url)
   }
 
   return (
@@ -57,7 +62,7 @@ export default function SeriesPanel({ list, series, onEdit, onDelete, onMove }: 
                   <td className="actions-cell">
                     <button className="btn-action btn-edit"   onClick={() => onEdit(s)} title="Edit">✏️</button>
                     <button className="btn-action btn-delete" onClick={() => onDelete(s.id)} title="Delete">🗑</button>
-                    <button className="btn-action btn-myep"   onClick={() => handleMyEp(s.name)} title="MyEpisodes">🔍</button>
+                    <button className="btn-action btn-myep" onClick={() => handleSearch(s.name)} title={useGoogle ? 'Google Search' : 'MyEpisodes'}>🔍</button>
                     <select
                       className="btn-action btn-move"
                       value=""
