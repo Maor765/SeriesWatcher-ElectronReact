@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, shell } from 'electron'
 import { join, dirname } from 'path'
 import { initDb } from './dbService'
 import { registerIpc } from './ipc'
@@ -16,6 +16,14 @@ function createWindow(): void {
     icon: join(__dirname, '../../resources/icon.png'),
     webPreferences: { preload, contextIsolation: true, nodeIntegration: false }
   })
+  // Redirect all window.open() calls to the system browser
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.startsWith('https://') || url.startsWith('http://')) {
+      shell.openExternal(url)
+    }
+    return { action: 'deny' }
+  })
+
   if (!app.isPackaged) win.loadURL(process.env['ELECTRON_RENDERER_URL']!)
   else win.loadFile(join(__dirname, '../renderer/index.html'))
 }

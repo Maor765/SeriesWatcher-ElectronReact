@@ -20,11 +20,11 @@ export default function SeriesPanel({ list, series, onEdit, onDelete, onMove }: 
   const otherLists = SERIES_LISTS.filter(l => l !== list)
   const useGoogle = GOOGLE_SEARCH_LISTS.has(list)
 
-  async function handleSearch(name: string) {
+  function handleSearch(name: string) {
     const url = useGoogle
       ? `https://www.google.com/search?q=${encodeURIComponent(name)}`
       : `https://www.google.com/search?q=${encodeURIComponent(`site:myepisodes.com ${name}`)}`
-    await window.electronAPI.shell.openExternal(url)
+    window.open(url, '_blank')
   }
 
   return (

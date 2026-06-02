@@ -117,6 +117,7 @@ tbody td {
   padding: 7px 10px; font-size: 13px;
   border-bottom: 1px solid var(--border-soft);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  vertical-align: middle;
 }
 tbody tr:last-child td  { border-bottom: none; }
 tbody tr.row-alt td     { background: var(--row-alt); }
@@ -126,16 +127,16 @@ tbody tr.row-past .cell-date { color: var(--past-text); font-weight: 700; }
 .btn-action { border: none; border-radius: 4px; font-size: 12px; padding: 4px 7px; cursor: pointer; margin-left: 3px; font-family: inherit; line-height: 1; }
 .btn-delete { background: var(--del-bg); color: var(--del-text); }
 .btn-delete:hover { opacity: 0.75; }
-.btn-myep   { background: var(--surface2); color: var(--text-secondary); border: 1px solid var(--border) !important; }
-.btn-myep:hover { border-color: var(--pc, var(--accent)) !important; color: var(--pc, var(--accent)); }
+.btn-myep   { background: var(--surface2); color: var(--text-secondary); border: 1px solid var(--border); }
+.btn-myep:hover { border-color: var(--pc, var(--accent)); color: var(--pc, var(--accent)); }
 .btn-move {
-  appearance: none; -webkit-appearance: none;
   background: var(--surface2); color: var(--text-secondary);
-  border: 1px solid var(--border) !important;
-  border-radius: 4px; font-size: 12px; padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px; font-size: 12px; padding: 3px 4px;
   cursor: pointer; font-family: inherit; line-height: 1;
+  vertical-align: middle;
 }
-.btn-move:hover { border-color: var(--pc, var(--accent)) !important; color: var(--pc, var(--accent)); }
+.btn-move:hover { border-color: var(--pc, var(--accent)); color: var(--pc, var(--accent)); }
 .empty-cell { text-align: center; color: var(--text-muted); padding: 16px 10px !important; font-size: 12px; font-style: italic; }
 
 /* ── Search overlay ── */
