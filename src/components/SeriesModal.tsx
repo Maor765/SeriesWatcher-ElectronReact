@@ -25,8 +25,14 @@ export default function SeriesModal({ entry, defaultList, onSave, onClose }: Pro
   return (
     <div className="modal-overlay open" onClick={e => { if (e.target === e.currentTarget) onClose() }}>
       <div className="modal">
-        <h2>{entry ? 'Edit Series' : 'Add Series'}</h2>
+        <h2>{entry ? 'Edit / Move' : 'Add Series'}</h2>
         <form onSubmit={handleSubmit}>
+          <label>
+            <span>List</span>
+            <select value={list} onChange={e => setList(e.target.value as SeriesList)}>
+              {SERIES_LISTS.map(l => <option key={l} value={l}>{l}</option>)}
+            </select>
+          </label>
           <label>
             <span>Name *</span>
             <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Breaking Bad" autoFocus />
@@ -34,12 +40,6 @@ export default function SeriesModal({ entry, defaultList, onSave, onClose }: Pro
           <label>
             <span>Date</span>
             <input type="date" value={date} onChange={e => setDate(e.target.value)} />
-          </label>
-          <label>
-            <span>List</span>
-            <select value={list} onChange={e => setList(e.target.value as SeriesList)}>
-              {SERIES_LISTS.map(l => <option key={l} value={l}>{l}</option>)}
-            </select>
           </label>
           {error && <p className="form-error">{error}</p>}
           <div className="modal-actions">

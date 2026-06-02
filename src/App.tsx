@@ -70,11 +70,6 @@ export default function App() {
     }
   }
 
-  async function handleMove(s: Series, targetList: SeriesList) {
-    await window.electronAPI.series.update({ ...s, list: targetList })
-    setToast(`Moved to ${targetList}`)
-    await loadAll()
-  }
 
   const isSearching = searchQuery.trim().length > 0
 
@@ -139,7 +134,6 @@ export default function App() {
               series={allSeries[list]}
               onEdit={setModal}
               onDelete={handleDelete}
-              onMove={handleMove}
             />
           ))}
         </div>
