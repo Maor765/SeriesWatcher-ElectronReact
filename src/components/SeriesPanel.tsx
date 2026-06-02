@@ -23,7 +23,7 @@ export default function SeriesPanel({ list, series, onEdit, onDelete, onMove }: 
   async function handleSearch(name: string) {
     const url = useGoogle
       ? `https://www.google.com/search?q=${encodeURIComponent(name)}`
-      : `https://www.google.com/search?q=site:myepisodes.com+${encodeURIComponent(name)}`
+      : `https://www.google.com/search?q=${encodeURIComponent(`site:myepisodes.com ${name}`)}`
     await window.electronAPI.shell.openExternal(url)
   }
 
