@@ -1,5 +1,5 @@
 import type { Series, SeriesList } from '../../shared/types'
-import { isPastDate, toInputDate, HIGHLIGHT_LISTS } from '../../shared/types'
+import { isPastDate, toInputDate, HIGHLIGHT_LISTS, SERIES_LISTS } from '../../shared/types'
 import { PANEL_COLORS } from './TopBar'
 
 interface Props {
@@ -7,12 +7,14 @@ interface Props {
   series: Series[]
   onEdit:   (s: Series) => void
   onDelete: (id: number) => void
+  onMove:   (s: Series, targetList: SeriesList) => void
 }
 
-export default function SeriesPanel({ list, series, onEdit, onDelete }: Props) {
+export default function SeriesPanel({ list, series, onEdit, onDelete, onMove }: Props) {
   const { pc, pd, icon } = PANEL_COLORS[list]
   const dateHeader = list === 'Unknown' ? 'Last Check' : 'Date'
   const highlightPast = HIGHLIGHT_LISTS.has(list)
+  const otherLists = SERIES_LISTS.filter(l => l !== list)
 
   async function handleMyEp(name: string) {
     await window.electronAPI.shell.openExternal(
@@ -30,9 +32,9 @@ export default function SeriesPanel({ list, series, onEdit, onDelete }: Props) {
       <div className="panel-scroll">
         <table>
           <colgroup>
-            <col style={{ width: '52%' }} />
+            <col style={{ width: '40%' }} />
             <col style={{ width: '22%' }} />
-            <col style={{ width: '26%' }} />
+            <col style={{ width: '38%' }} />
           </colgroup>
           <thead>
             <tr>
@@ -53,9 +55,18 @@ export default function SeriesPanel({ list, series, onEdit, onDelete }: Props) {
                   <td>{s.name}</td>
                   <td className="cell-date">{toInputDate(s.date)}</td>
                   <td className="actions-cell">
-                    <button className="btn-action btn-edit"   onClick={() => onEdit(s)}>✏️</button>
-                    <button className="btn-action btn-delete" onClick={() => onDelete(s.id)}>🗑</button>
-                    <button className="btn-action btn-myep"   onClick={() => handleMyEp(s.name)}>🔍</button>
+                    <button className="btn-action btn-edit"   onClick={() => onEdit(s)} title="Edit">✏️</button>
+                    <button className="btn-action btn-delete" onClick={() => onDelete(s.id)} title="Delete">🗑</button>
+                    <button className="btn-action btn-myep"   onClick={() => handleMyEp(s.name)} title="MyEpisodes">🔍</button>
+                    <select
+                      className="btn-action btn-move"
+                      value=""
+                      title="Move to list"
+                      onChange={e => { if (e.target.value) onMove(s, e.target.value as SeriesList) }}
+                    >
+                      <option value="">⇄</option>
+                      {otherLists.map(l => <option key={l} value={l}>{l}</option>)}
+                    </select>
                   </td>
                 </tr>
               )

@@ -70,6 +70,12 @@ export default function App() {
     }
   }
 
+  async function handleMove(s: Series, targetList: SeriesList) {
+    await window.electronAPI.series.update({ ...s, list: targetList })
+    setToast(`Moved to ${targetList}`)
+    await loadAll()
+  }
+
   const isSearching = searchQuery.trim().length > 0
 
   return (
@@ -123,7 +129,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 3×2 Grid */}
+      {/* 2×3 Grid */}
       {!isSearching && (
         <div className="grid">
           {SERIES_LISTS.map(list => (
@@ -133,6 +139,7 @@ export default function App() {
               series={allSeries[list]}
               onEdit={setModal}
               onDelete={handleDelete}
+              onMove={handleMove}
             />
           ))}
         </div>
