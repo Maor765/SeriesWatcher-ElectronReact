@@ -18,10 +18,15 @@ export default function SeriesPanel({ list, series, onEdit, onDelete }: Props) {
   const highlightPast = HIGHLIGHT_LISTS.has(list)
   const useGoogle = GOOGLE_SEARCH_LISTS.has(list)
 
-  function searchUrl(name: string): string {
-    return useGoogle
-      ? `https://www.google.com/search?q=${encodeURIComponent(name)}`
-      : `https://www.google.com/search?q=${encodeURIComponent(`site:myepisodes.com ${name}`)}`
+  function handleSearch(name: string) {
+    if (useGoogle) {
+      // Movies/Unknown: Google search only
+      window.open(`https://www.google.com/search?q=${encodeURIComponent(name)}`, '_blank')
+    } else {
+      // Series: open both MyEpisodes and Google in separate tabs
+      window.open(`https://www.myepisodes.com/search/?tvshow=${encodeURIComponent(name)}`, '_blank')
+      window.open(`https://www.google.com/search?q=${encodeURIComponent(name)}`, '_blank')
+    }
   }
 
   return (
@@ -67,13 +72,11 @@ export default function SeriesPanel({ list, series, onEdit, onDelete }: Props) {
                       onClick={() => onDelete(s.id)}
                       title="Delete"
                     >🗑</button>
-                    <a
-                      href={searchUrl(s.name)}
-                      target="_blank"
-                      rel="noreferrer"
+                    <button
                       className="btn-action btn-myep"
-                      title={useGoogle ? 'Google Search' : 'MyEpisodes'}
-                    >🔍</a>
+                      onClick={() => handleSearch(s.name)}
+                      title={useGoogle ? 'Google Search' : 'MyEpisodes + Google'}
+                    >🔍</button>
                   </td>
                 </tr>
               )
