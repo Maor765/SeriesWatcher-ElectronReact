@@ -2,8 +2,8 @@ import type { Series, SeriesList } from '../../shared/types'
 import { isPastDate, toInputDate, HIGHLIGHT_LISTS } from '../../shared/types'
 import { PANEL_COLORS } from './TopBar'
 
-// Lists where 🔍 does a plain Google search (not site:myepisodes.com)
-const GOOGLE_SEARCH_LISTS = new Set<SeriesList>(['Upcoming Movies', 'Unknown'])
+// Lists where 🔍 does a plain Google search (not MyEpisodes + Google)
+const GOOGLE_SEARCH_LISTS = new Set<SeriesList>(['Upcoming Movies', 'Unknown', 'Israeli'])
 
 interface Props {
   list: SeriesList
