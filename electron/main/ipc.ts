@@ -1,5 +1,6 @@
 import { ipcMain, shell } from 'electron'
 import { listBySeriesList, search, add, update, deleteSeries } from './dbService'
+import { searchMyEpisodes, closeBrowser } from './myEpisodesSearch'
 import type { SeriesList, Series } from '../../shared/types'
 
 export function registerIpc(): void {
@@ -26,4 +27,17 @@ export function registerIpc(): void {
   ipcMain.handle('shell:openExternal', (_e, url: string) => {
     shell.openExternal(url)
   })
+
+  ipcMain.handle('myepisodes:search', async (_e, showName: string) => {
+    try {
+      const url = await searchMyEpisodes(showName)
+      return url
+    } catch (e: any) {
+      console.error('MyEpisodes search error:', e.message)
+      return null
+    }
+  })
 }
+
+// Clean up browser on app quit
+process.on('exit', () => closeBrowser().catch(() => {}))

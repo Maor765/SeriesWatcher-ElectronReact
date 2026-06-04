@@ -33,6 +33,9 @@ export interface ElectronAPI {
   shell: {
     openExternal: (url: string) => Promise<void>
   }
+  myepisodes: {
+    search: (showName: string) => Promise<string | null>
+  }
 }
 
 declare global {

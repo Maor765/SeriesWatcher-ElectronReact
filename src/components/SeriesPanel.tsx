@@ -18,14 +18,19 @@ export default function SeriesPanel({ list, series, onEdit, onDelete }: Props) {
   const highlightPast = HIGHLIGHT_LISTS.has(list)
   const useGoogle = GOOGLE_SEARCH_LISTS.has(list)
 
-  function handleSearch(name: string) {
+  async function handleSearch(name: string) {
     if (useGoogle) {
       // Movies/Unknown: Google search only
       window.open(`https://www.google.com/search?q=${encodeURIComponent(name)}`, '_blank')
     } else {
-      // Series: open both MyEpisodes and Google in separate tabs
-      window.open(`https://www.myepisodes.com/search/?tvshow=${encodeURIComponent(name)}`, '_blank')
-      window.open(`https://www.google.com/search?q=${encodeURIComponent(name)}`, '_blank')
+      // Series: find and open MyEpisodes show page, fall back to Google
+      const showUrl = await window.electronAPI.myepisodes.search(name)
+      if (showUrl) {
+        window.open(showUrl, '_blank')
+      } else {
+        // Not found on MyEpisodes, open Google
+        window.open(`https://www.google.com/search?q=${encodeURIComponent(name)}`, '_blank')
+      }
     }
   }
 

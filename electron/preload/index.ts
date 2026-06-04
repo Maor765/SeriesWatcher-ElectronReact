@@ -12,6 +12,9 @@ const api: ElectronAPI = {
   shell: {
     openExternal: (url) => ipcRenderer.invoke('shell:openExternal', url),
   },
+  myepisodes: {
+    search: (showName) => ipcRenderer.invoke('myepisodes:search', showName),
+  },
 }
 
 contextBridge.exposeInMainWorld('electronAPI', api)

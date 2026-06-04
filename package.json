@@ -17,8 +17,13 @@
   "build": {
     "appId": "com.maor.serieswatcher",
     "productName": "SeriesWatcher",
-    "directories": { "output": "dist" },
-    "files": ["out/**/*", "resources/icon.png"],
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "out/**/*",
+      "resources/icon.png"
+    ],
     "extraResources": [
       {
         "from": "node_modules/better-sqlite3/build/Release/better_sqlite3.node",
@@ -27,14 +32,22 @@
     ],
     "win": {
       "icon": "resources/icon.png",
-      "target": [{ "target": "portable", "arch": ["x64"] }]
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
     }
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.2",
     "@electron-toolkit/tsconfig": "^2.0.0",
     "@electron-toolkit/utils": "^4.0.0",
-    "better-sqlite3": "^12.10.0"
+    "better-sqlite3": "^12.10.0",
+    "puppeteer": "^25.1.0"
   },
   "devDependencies": {
     "@electron/rebuild": "^4.0.4",
