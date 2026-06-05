@@ -14,7 +14,10 @@ export async function searchMyEpisodes(showName: string): Promise<string | null>
     const page = await browser.newPage()
     page.setDefaultTimeout(10000)
 
-    await page.goto(`https://www.myepisodes.com/search/?tvshow=${encodeURIComponent(showName)}`, {
+    const searchUrl = `https://www.myepisodes.com/search/?tvshow=${encodeURIComponent(showName)}`
+    console.log(`[MyEpisodes] Searching for "${showName}" at ${searchUrl}`)
+
+    await page.goto(searchUrl, {
       waitUntil: 'networkidle0',
     })
 
@@ -22,21 +25,37 @@ export async function searchMyEpisodes(showName: string): Promise<string | null>
     const showUrl = await page.evaluate((name: string) => {
       const links = Array.from(document.querySelectorAll('a[href*="epsbyshow"]')) as HTMLAnchorElement[]
 
+      console.log(`[MyEpisodes] Found ${links.length} show links`)
+      links.forEach((a, i) => {
+        console.log(`  [${i}] "${a.textContent?.trim()}" → ${a.href}`)
+      })
+
       // Try exact match first (case-insensitive)
-      const exact = links.find(a =>
-        a.textContent?.trim().toLowerCase() === name.toLowerCase() &&
-        a.href.includes('epsbyshow')
-      )
-      if (exact?.href) return exact.href
+      const exact = links.find(a => {
+        const text = a.textContent?.trim().toLowerCase()
+        const match = text === name.toLowerCase()
+        console.log(`  Checking exact match: "${text}" vs "${name.toLowerCase()}" = ${match}`)
+        return match && a.href.includes('epsbyshow')
+      })
+      if (exact?.href) {
+        console.log(`[MyEpisodes] Exact match found: ${exact.href}`)
+        return exact.href
+      }
 
       // Fall back to first result if it exists
-      return links.length > 0 ? links[0].href : null
+      if (links.length > 0) {
+        console.log(`[MyEpisodes] No exact match, using first result: ${links[0].href}`)
+        return links[0].href
+      }
+
+      console.log(`[MyEpisodes] No results found`)
+      return null
     }, showName)
 
     await page.close()
     return showUrl || null
   } catch (e) {
-    console.error('MyEpisodes search failed:', (e as Error).message)
+    console.error('[MyEpisodes] Search failed:', (e as Error).message)
     return null
   }
 }
