@@ -1,31 +1,40 @@
-import * as cheerio from 'cheerio'
+let browser: any = null
+
+async function lazyBrowser() {
+  if (!browser) {
+    const puppeteer = await import('puppeteer')
+    browser = await puppeteer.default.launch({ headless: true })
+  }
+  return browser
+}
 
 export async function searchMyEpisodes(showName: string): Promise<string | null> {
   try {
     const searchUrl = `https://www.myepisodes.com/search/?tvshow=${encodeURIComponent(showName)}`
     console.log(`[MyEpisodes] Searching for: "${showName}"`)
 
-    const response = await fetch(searchUrl)
-    if (!response.ok) {
-      console.log(`[MyEpisodes] HTTP ${response.status}, returning search URL`)
-      return searchUrl
-    }
+    const browser = await lazyBrowser()
+    const page = await browser.newPage()
 
-    const html = await response.text()
-    const $ = cheerio.load(html)
+    // Set a longer timeout
+    page.setDefaultTimeout(20000)
+    page.setDefaultNavigationTimeout(20000)
 
-    // Find all links that look like show links
-    // Look for <a> tags with href containing /show/
-    const links: Array<{ url: string; text: string }> = []
+    await page.goto(searchUrl, {
+      waitUntil: 'networkidle2', // Wait for network to be mostly idle
+    })
 
-    $('a[href*="/show/"]').each((_i, el) => {
-      const href = $(el).attr('href')
-      const text = $(el).text().trim()
+    // Wait for search results to appear
+    await page.waitForSelector('a[href*="/show/"]', { timeout: 10000 }).catch(() => null)
 
-      if (href && text && href.startsWith('/show/')) {
-        const url = href.startsWith('http') ? href : 'https://www.myepisodes.com' + href
-        links.push({ url, text })
-      }
+    // Get all show links
+    const links = await page.evaluate(() => {
+      return Array.from(document.querySelectorAll('a[href*="/show/"]'))
+        .map(el => ({
+          url: (el as HTMLAnchorElement).href,
+          text: el.textContent?.trim() || '',
+        }))
+        .filter(l => l.text.length > 0 && l.url.includes('/show/'))
     })
 
     console.log(`[MyEpisodes] Found ${links.length} show links`)
@@ -33,13 +42,15 @@ export async function searchMyEpisodes(showName: string): Promise<string | null>
       console.log(`  [${i}] "${l.text}"`)
     })
 
+    await page.close()
+
     if (links.length === 0) {
       console.log(`[MyEpisodes] No shows found, returning search page`)
       return searchUrl
     }
 
     // Try exact match (case-insensitive)
-    const exact = links.find(l => l.text.toLowerCase() === showName.toLowerCase())
+    const exact = links.find((l: any) => l.text.toLowerCase() === showName.toLowerCase())
     if (exact) {
       console.log(`[MyEpisodes] ✓ Exact match: "${exact.text}"`)
       return exact.url
@@ -47,7 +58,7 @@ export async function searchMyEpisodes(showName: string): Promise<string | null>
 
     console.log(`[MyEpisodes] No exact match, trying partial...`)
     // Try partial match
-    const partial = links.find(l => l.text.toLowerCase().includes(showName.toLowerCase()))
+    const partial = links.find((l: any) => l.text.toLowerCase().includes(showName.toLowerCase()))
     if (partial) {
       console.log(`[MyEpisodes] ✓ Partial match: "${partial.text}"`)
       return partial.url
@@ -62,5 +73,8 @@ export async function searchMyEpisodes(showName: string): Promise<string | null>
 }
 
 export async function closeBrowser() {
-  // No-op
+  if (browser) {
+    await browser.close()
+    browser = null
+  }
 }
