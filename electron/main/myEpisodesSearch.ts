@@ -1,64 +1,47 @@
-let browser: any = null
-
-async function lazyBrowser() {
-  if (!browser) {
-    const puppeteer = await import('puppeteer')
-    browser = await puppeteer.default.launch({ headless: true })
-  }
-  return browser
-}
-
 export async function searchMyEpisodes(showName: string): Promise<string | null> {
   try {
-    const browser = await lazyBrowser()
-    const page = await browser.newPage()
-    page.setDefaultTimeout(15000)
-
     const searchUrl = `https://www.myepisodes.com/search/?tvshow=${encodeURIComponent(showName)}`
 
-    try {
-      await page.goto(searchUrl, { waitUntil: 'load' })
-    } catch (navError) {
-      // Network error or timeout — just return the search URL and let browser navigate
-      await page.close()
+    // Fetch the search results page
+    const response = await fetch(searchUrl)
+    if (!response.ok) return searchUrl
+
+    const html = await response.text()
+
+    // Look for links like: href="/show/12345/Title" or href="/show/show-slug"
+    // Pattern: <a href="/show/...", try to find exact match first
+    const linkPattern = /href="(\/show\/[^"]+)">([^<]+)<\/a>/g
+    const links: Array<{ url: string; text: string }> = []
+
+    let match
+    while ((match = linkPattern.exec(html)) !== null) {
+      links.push({
+        url: 'https://www.myepisodes.com' + match[1],
+        text: match[2].trim(),
+      })
+    }
+
+    if (links.length === 0) {
+      // No show links found, return search page
       return searchUrl
     }
 
-    // Look for show links with epsbyshow in the href
-    const showUrl = await page.evaluate((name: string) => {
-      const links = Array.from(document.querySelectorAll('a[href*="epsbyshow"]')) as HTMLAnchorElement[]
+    // Try exact match first (case-insensitive)
+    const exact = links.find(l => l.text.toLowerCase() === showName.toLowerCase())
+    if (exact) return exact.url
 
-      if (links.length === 0) return null
+    // Try partial match
+    const partial = links.find(l => l.text.toLowerCase().includes(showName.toLowerCase()))
+    if (partial) return partial.url
 
-      // Try exact match first (case-insensitive, trim whitespace)
-      const exact = links.find(a =>
-        a.textContent?.trim().toLowerCase() === name.toLowerCase()
-      )
-      if (exact?.href) return exact.href
-
-      // Try partial match (show name appears in link text)
-      const partial = links.find(a =>
-        a.textContent?.toLowerCase().includes(name.toLowerCase())
-      )
-      if (partial?.href) return partial.href
-
-      // Return first result
-      return links[0].href
-    }, showName)
-
-    await page.close()
-
-    // If found a show page, return it; otherwise return search page
-    return showUrl || searchUrl
+    // Return first result
+    return links[0].url
   } catch (e) {
-    // On any error, return search URL as fallback
+    // On error, return search URL
     return `https://www.myepisodes.com/search/?tvshow=${encodeURIComponent(showName)}`
   }
 }
 
 export async function closeBrowser() {
-  if (browser) {
-    await browser.close()
-    browser = null
-  }
+  // No-op now that we're not using Puppeteer
 }
