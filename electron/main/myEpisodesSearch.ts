@@ -1,10 +1,9 @@
-import puppeteer, { Browser } from 'puppeteer'
+let browser: any = null
 
-let browser: Browser | null = null
-
-async function lazyBrowser(): Promise<Browser> {
+async function lazyBrowser() {
   if (!browser) {
-    browser = await puppeteer.launch({ headless: true })
+    const puppeteer = await import('puppeteer')
+    browser = await puppeteer.default.launch({ headless: true })
   }
   return browser
 }
