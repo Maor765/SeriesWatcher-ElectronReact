@@ -44,44 +44,41 @@ export async function searchMyEpisodes(showName: string): Promise<string | null>
     await page.waitForNavigation({ waitUntil: 'networkidle2' }).catch(() => null)
     await page.waitForSelector('a[href*="/show/"]', { timeout: 10000 }).catch(() => null)
 
-    // Extract all show links
-    const links = await page.evaluate(() => {
-      return Array.from(document.querySelectorAll('a[href*="/show/"]'))
+    // Find all links that contain the show name (exact match, case-insensitive)
+    const exactMatches = await page.evaluate((searchTerm: string) => {
+      // Find all <a> tags
+      const allLinks = Array.from(document.querySelectorAll('a'))
         .map(el => ({
           url: (el as HTMLAnchorElement).href,
           text: el.textContent?.trim() || '',
         }))
-        .filter(l => l.text.length > 0)
-    })
 
-    console.log(`[MyEpisodes] Found ${links.length} results`)
-    links.slice(0, 10).forEach((l, i) => {
-      console.log(`  [${i}] "${l.text}"`)
-    })
+      // Filter for exact matches (case-insensitive)
+      const matches = allLinks.filter(l =>
+        l.text.toLowerCase() === searchTerm.toLowerCase() &&
+        l.url.includes('/show/')
+      )
+
+      console.log(`Found ${matches.length} exact matches for "${searchTerm}"`)
+      matches.slice(0, 5).forEach((m, i) => {
+        console.log(`  [${i}] "${m.text}"`)
+      })
+
+      return matches
+    }, showName)
+
+    console.log(`[MyEpisodes] Found ${exactMatches.length} exact matches`)
 
     await page.close()
 
-    if (links.length === 0) {
-      console.log('[MyEpisodes] No results found')
+    if (exactMatches.length === 0) {
+      console.log('[MyEpisodes] No exact matches found')
       return null
     }
 
-    // Try exact match
-    const exact = links.find((l: any) => l.text.toLowerCase() === showName.toLowerCase())
-    if (exact) {
-      console.log(`[MyEpisodes] ✓ Exact match: "${exact.text}" → ${exact.url}`)
-      return exact.url
-    }
-
-    // Try partial match
-    const partial = links.find((l: any) => l.text.toLowerCase().includes(showName.toLowerCase()))
-    if (partial) {
-      console.log(`[MyEpisodes] ✓ Partial match: "${partial.text}" → ${partial.url}`)
-      return partial.url
-    }
-
-    console.log(`[MyEpisodes] Using first result: "${links[0].text}" → ${links[0].url}`)
-    return links[0].url
+    // Return the first exact match
+    console.log(`[MyEpisodes] ✓ Opening: "${exactMatches[0].text}" → ${exactMatches[0].url}`)
+    return exactMatches[0].url
   } catch (e) {
     console.error('[MyEpisodes] Error:', (e as Error).message)
     return null
