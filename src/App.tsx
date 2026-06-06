@@ -168,17 +168,17 @@ export default function App() {
         />
       )}
 
-      {toast && <Toast message={toast} onDone={() => setToast('')} />}
-
       {contextMenu && (
         <ContextMenu
           x={contextMenu.x}
           y={contextMenu.y}
           series={contextMenu.series}
-          onMove={handleMoveToList}
+          onMove={(targetList) => handleMoveToList(contextMenu.series, targetList)}
           onClose={() => setContextMenu(null)}
         />
       )}
+
+      {toast && <Toast message={toast} onDone={() => setToast('')} />}
     </div>
   )
 }
