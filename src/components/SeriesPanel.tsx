@@ -10,9 +10,10 @@ interface Props {
   series: Series[]
   onEdit:   (s: Series) => void
   onDelete: (id: number) => void
+  onContextMenu?: (x: number, y: number, series: Series) => void
 }
 
-export default function SeriesPanel({ list, series, onEdit, onDelete }: Props) {
+export default function SeriesPanel({ list, series, onEdit, onDelete, onContextMenu }: Props) {
   const { pc, pd, icon } = PANEL_COLORS[list]
   const dateHeader = list === 'Unknown' ? 'Last Check' : 'Date'
   const highlightPast = HIGHLIGHT_LISTS.has(list)
@@ -63,7 +64,16 @@ export default function SeriesPanel({ list, series, onEdit, onDelete }: Props) {
               const past = highlightPast && isPastDate(s.date)
               const cls  = past ? 'row-past' : i % 2 === 1 ? 'row-alt' : ''
               return (
-                <tr key={s.id} className={cls}>
+                <tr
+                  key={s.id}
+                  className={cls}
+                  onContextMenu={(e) => {
+                    e.preventDefault()
+                    if (onContextMenu) {
+                      onContextMenu(e.clientX, e.clientY, s)
+                    }
+                  }}
+                >
                   <td title={s.name}>{s.name}</td>
                   <td className="cell-date">{toInputDate(s.date)}</td>
                   <td className="actions-cell">

@@ -139,19 +139,24 @@ export default function App() {
         </div>
       )}
 
-      {/* 2×3 Grid */}
+      {/* Tab View */}
       {!isSearching && (
-        <div className="grid">
-          {SERIES_LISTS.map(list => (
+        <>
+          <TabBar
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            counts={counts}
+          />
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <SeriesPanel
-              key={list}
-              list={list}
-              series={allSeries[list]}
+              list={activeTab}
+              series={allSeries[activeTab]}
               onEdit={setModal}
               onDelete={handleDelete}
+              onContextMenu={(x, y, series) => setContextMenu({ x, y, series })}
             />
-          ))}
-        </div>
+          </div>
+        </>
       )}
 
       {modal !== undefined && (
@@ -164,6 +169,16 @@ export default function App() {
       )}
 
       {toast && <Toast message={toast} onDone={() => setToast('')} />}
+
+      {contextMenu && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          series={contextMenu.series}
+          onMove={handleMoveToList}
+          onClose={() => setContextMenu(null)}
+        />
+      )}
     </div>
   )
 }
