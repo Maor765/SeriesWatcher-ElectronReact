@@ -244,3 +244,101 @@ tbody tr.row-past .cell-date { color: var(--past-text); font-weight: 700; }
 
 @keyframes pop      { from { transform: scale(0.93); opacity: 0 } to { transform: scale(1); opacity: 1 } }
 @keyframes slideUp  { from { transform: translateY(8px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+
+/* ── TabBar ── */
+.tab-bar {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-soft);
+  background-color: var(--surface2);
+  overflow-x: auto;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.tab:hover {
+  color: var(--text-primary);
+  background-color: rgba(88, 166, 255, 0.05);
+}
+
+.tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.tab-label {
+  display: inline;
+}
+
+.tab-badge {
+  display: inline-block;
+  min-width: 1.5rem;
+  padding: 0.1rem 0.4rem;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.tab.active .tab-badge {
+  background-color: rgba(88, 166, 255, 0.2);
+}
+
+/* ── ContextMenu ── */
+.context-menu {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  box-shadow: 0 4px 12px var(--shadow);
+  overflow: hidden;
+  min-width: 150px;
+  z-index: 1000;
+}
+
+.context-menu-header {
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.context-menu-item {
+  display: block;
+  width: 100%;
+  padding: 0.6rem 1rem;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  transition: background-color 0.15s ease;
+  font-family: inherit;
+}
+
+.context-menu-item:hover {
+  background-color: var(--surface2);
+  color: var(--accent);
+}
+
+.context-menu-item:active {
+  background-color: var(--accent);
+  color: var(--accent-text);
+}
