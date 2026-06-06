@@ -121,7 +121,14 @@ export default function App() {
                   {searchResults.length === 0
                     ? <tr><td colSpan={4} className="empty-cell">No results</td></tr>
                     : searchResults.map((s, i) => (
-                      <tr key={s.id} className={i % 2 === 1 ? 'row-alt' : ''}>
+                      <tr
+                        key={s.id}
+                        className={i % 2 === 1 ? 'row-alt' : ''}
+                        onContextMenu={(e) => {
+                          e.preventDefault()
+                          setContextMenu({ x: e.clientX, y: e.clientY, series: s })
+                        }}
+                      >
                         <td>{s.name}</td>
                         <td>{s.list}</td>
                         <td>{s.date}</td>
