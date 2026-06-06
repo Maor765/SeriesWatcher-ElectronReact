@@ -74,6 +74,17 @@ export default function App() {
     }
   }
 
+  async function handleMoveToList(series: Series, targetList: SeriesList) {
+    const updated = { ...series, list: targetList }
+    await window.electronAPI.series.update(updated)
+    setToast(`Moved ${series.name} to ${targetList}`)
+    await loadAll()
+    if (searchQuery.trim()) {
+      const fresh = await window.electronAPI.series.search(searchQuery)
+      setResults(fresh)
+    }
+    setContextMenu(null)
+  }
 
   const isSearching = searchQuery.trim().length > 0
 
