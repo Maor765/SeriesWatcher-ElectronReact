@@ -5,6 +5,8 @@ import TopBar from './components/TopBar'
 import SeriesPanel from './components/SeriesPanel'
 import SeriesModal from './components/SeriesModal'
 import Toast from './components/Toast'
+import TabBar from './components/TabBar'
+import ContextMenu from './components/ContextMenu'
 
 type ModalState = Series | null | undefined   // undefined=closed, null=add, Series=edit
 
@@ -21,6 +23,8 @@ export default function App() {
   const [searchResults, setResults] = useState<Series[]>([])
   const [modal, setModal]         = useState<ModalState>(undefined)
   const [toast, setToast]         = useState('')
+  const [activeTab, setActiveTab] = useState<SeriesList>('Ending')
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; series: Series } | null>(null)
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
