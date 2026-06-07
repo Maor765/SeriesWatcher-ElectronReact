@@ -1,6 +1,5 @@
-export async function searchMyEpisodes(_showName: string): Promise<string | null> {
-  // Open MyEpisodes home — user types in search box and clicks show
-  return `https://www.myepisodes.com/`
+export async function searchMyEpisodes(showName: string): Promise<string | null> {
+  return `https://www.myepisodes.com/search/?tvshow=${encodeURIComponent(showName)}`
 }
 
 export async function closeBrowser() {
