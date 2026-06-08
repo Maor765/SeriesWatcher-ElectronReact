@@ -22,7 +22,8 @@
     },
     "files": [
       "out/**/*",
-      "resources/icon.png"
+      "resources/icon.png",
+      "series.db"
     ],
     "extraResources": [
       {
