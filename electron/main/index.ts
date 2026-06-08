@@ -10,10 +10,13 @@ function getMdfPath() { return app.isPackaged ? join(dirname(app.getPath('exe'))
 
 function createWindow(): void {
   const preload = join(__dirname, '../preload/index.js')
+  const iconPath = app.isPackaged
+    ? join(process.resourcesPath, 'resources/icon.png')
+    : join(process.cwd(), 'resources/icon.png')
   const win = new BrowserWindow({
     width: 1100, height: 700,
     minWidth: 800, minHeight: 500,
-    icon: join(__dirname, '../../resources/icon.png'),
+    icon: iconPath,
     webPreferences: { preload, contextIsolation: true, nodeIntegration: false }
   })
   // Redirect all window.open() calls to the system browser
