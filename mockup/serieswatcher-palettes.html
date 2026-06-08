@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SeriesWatcher — Color Palettes</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    font-size:13px;
+    background:#0a0a12;
+    color:#e8e8f0;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+  ::-webkit-scrollbar{width:4px}
+  ::-webkit-scrollbar-thumb{background:#333;border-radius:3px}
+
+  /* ── Picker bar ── */
+  .picker{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 16px;
+    background:#111118;
+    border-bottom:1px solid #222236;
+    flex-shrink:0;
+    overflow-x:auto;
+  }
+  .picker-label{
+    font-size:10px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    color:#555570;
+    white-space:nowrap;
+    flex-shrink:0;
+  }
+
+  .palette-card{
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+    padding:8px 12px;
+    border-radius:10px;
+    border:2px solid transparent;
+    cursor:pointer;
+    background:#18182a;
+    transition:all 0.15s;
+    flex-shrink:0;
+    min-width:120px;
+  }
+  .palette-card:hover{border-color:#444460;background:#1e1e30}
+  .palette-card.active{border-color:#fff !important;background:#1e1e30}
+
+  .palette-name{
+    font-size:11px;
+    font-weight:700;
+    white-space:nowrap;
+  }
+  .palette-swatches{
+    display:flex;
+    gap:4px;
+  }
+  .swatch{
+    width:18px;height:18px;
+    border-radius:5px;
+    border:1px solid rgba(255,255,255,0.08);
+  }
+  .palette-desc{
+    font-size:9px;
+    color:#666680;
+    white-space:nowrap;
+  }
+
+  /* ── App preview ── */
+  .app-preview{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+
+  /* CSS vars injected per palette */
+  .app-preview{
+    --bg:            #0c0c14;
+    --surface:       #14141f;
+    --surface2:      #1a1a2e;
+    --border:        #2d2d50;
+    --border-soft:   #22223a;
+    --text-primary:  #e8e8f0;
+    --text-secondary:#8888aa;
+    --text-muted:    #44445a;
+    --input-bg:      #0c0c14;
+    --row-alt:       #111120;
+    --shadow:        rgba(0,0,0,0.5);
+    --past-bg:       #2a1e00;
+    --past-text:     #f59e0b;
+    --del-bg:        #2a1010;
+    --del-text:      #f87171;
+    --accent:        #a78bfa;
+    --accent-text:   #0c0c14;
+    --c1:            #60a5fa;
+    --c1d:           #1a2a40;
+    --c2:            #34d399;
+    --c2d:           #0f2a20;
+    --c3:            #fb923c;
+    --c3d:           #2a1a08;
+    --c4:            #a78bfa;
+    --c4d:           #1e1430;
+  }
+
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:9px 16px;
+    background:var(--surface);
+    border-bottom:1px solid var(--border);
+    flex-shrink:0;
+    gap:10px;
+    box-shadow:0 1px 10px var(--shadow);
+    z-index:5;
+  }
+  .app-title{
+    font-size:14px;font-weight:800;
+    background:linear-gradient(90deg,var(--c1),var(--c4));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    background-clip:text;
+    white-space:nowrap;
+  }
+  .topbar-right{display:flex;align-items:center;gap:6px}
+  .fake-search{
+    background:var(--input-bg);border:1px solid var(--border);
+    border-radius:20px;padding:5px 14px;
+    color:var(--text-muted);font-size:11px;
+    width:180px;
+  }
+  .btn-t{
+    background:var(--surface2);border:1px solid var(--border);
+    border-radius:7px;padding:5px 10px;
+    color:var(--text-secondary);font-size:11px;
+    white-space:nowrap;
+  }
+
+  .strip{
+    display:flex;gap:16px;padding:5px 16px;
+    background:var(--surface2);border-bottom:1px solid var(--border-soft);
+    flex-shrink:0;
+  }
+  .chip{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-secondary)}
+  .dot{width:6px;height:6px;border-radius:50%}
+
+  .grid{
+    flex:1;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:1fr 1fr;
+    gap:8px;padding:8px;
+    overflow:hidden;min-height:0;
+  }
+
+  .panel{
+    display:flex;flex-direction:column;
+    background:var(--surface);
+    border-radius:10px;
+    border:1px solid var(--border);
+    overflow:hidden;
+    box-shadow:0 2px 10px var(--shadow);
+    min-height:0;
+  }
+  .p-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:7px 10px 6px;
+    border-bottom:1px solid var(--border-soft);
+    flex-shrink:0;
+  }
+  .p-head-l{display:flex;align-items:center;gap:6px}
+  .p-icon{font-size:13px;line-height:1}
+  .p-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+  .p-badge{
+    font-size:9px;font-weight:700;
+    border-radius:9px;padding:1px 6px;min-width:18px;text-align:center;
+  }
+  .btn-add-p{
+    background:none;border:1px solid;border-radius:5px;
+    padding:2px 8px;font-size:10px;font-weight:600;cursor:pointer;opacity:0.65;
+    font-family:inherit;
+  }
+
+  .p1 { border-top:2px solid var(--c1); --pc:var(--c1); --pd:var(--c1d); }
+  .p2 { border-top:2px solid var(--c2); --pc:var(--c2); --pd:var(--c2d); }
+  .p3 { border-top:2px solid var(--c3); --pc:var(--c3); --pd:var(--c3d); }
+  .p4 { border-top:2px solid var(--c4); --pc:var(--c4); --pd:var(--c4d); }
+  .panel .p-title{color:var(--pc)}
+  .panel .p-badge{background:var(--pd);color:var(--pc)}
+  .panel .btn-add-p{color:var(--pc);border-color:var(--pc)}
+
+  .p-scroll{flex:1;overflow-y:auto;min-height:0}
+  table{width:100%;border-collapse:collapse;table-layout:fixed}
+  thead th{
+    background:var(--surface2);
+    font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;
+    color:var(--pc);padding:5px 10px;
+    border-bottom:1px solid var(--border-soft);
+    position:sticky;top:0;z-index:1;
+  }
+  tbody td{
+    padding:5px 10px;font-size:11px;
+    border-bottom:1px solid var(--border-soft);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    color:var(--text-primary);
+  }
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr.alt td{background:var(--row-alt)}
+  tbody tr.past td{background:var(--past-bg)}
+  tbody tr.past .dt{color:var(--past-text);font-weight:700}
+  .acts{text-align:right;padding-right:8px!important}
+  .ba{
+    border:none;border-radius:3px;font-size:10px;padding:2px 5px;
+    cursor:pointer;margin-left:2px;font-family:inherit;
+  }
+  .be{background:var(--pd);color:var(--pc)}
+  .bd{background:var(--del-bg);color:var(--del-text)}
+  .bs{background:var(--surface2);color:var(--text-secondary);border:1px solid var(--border)!important}
+</style>
+</head>
+<body>
+
+<!-- PALETTE PICKER -->
+<div class="picker">
+  <span class="picker-label">Theme</span>
+
+  <div class="palette-card active" onclick="applyPalette('cosmic')" id="card-cosmic">
+    <div class="palette-name" style="color:#a78bfa">Cosmic</div>
+    <div class="palette-swatches">
+      <div class="swatch" style="background:#60a5fa"></div>
+      <div class="swatch" style="background:#34d399"></div>
+      <div class="swatch" style="background:#fb923c"></div>
+      <div class="swatch" style="background:#a78bfa"></div>
+    </div>
+    <div class="palette-desc">Purple-black base</div>
+  </div>
+
+  <div class="palette-card" onclick="applyPalette('ocean')" id="card-ocean">
+    <div class="palette-name" style="color:#22d3ee">Deep Ocean</div>
+    <div class="palette-swatches">
+      <div class="swatch" style="background:#22d3ee"></div>
+      <div class="swatch" style="background:#2dd4bf"></div>
+      <div class="swatch" style="background:#38bdf8"></div>
+      <div class="swatch" style="background:#818cf8"></div>
+    </div>
+    <div class="palette-desc">Dark navy base</div>
+  </div>
+
+  <div class="palette-card" onclick="applyPalette('ember')" id="card-ember">
+    <div class="palette-name" style="color:#fb923c">Ember</div>
+    <div class="palette-swatches">
+      <div class="swatch" style="background:#fbbf24"></div>
+      <div class="swatch" style="background:#fb923c"></div>
+      <div class="swatch" style="background:#f87171"></div>
+      <div class="swatch" style="background:#fb7185"></div>
+    </div>
+    <div class="palette-desc">Warm dark base</div>
+  </div>
+
+  <div class="palette-card" onclick="applyPalette('forest')" id="card-forest">
+    <div class="palette-name" style="color:#86efac">Forest</div>
+    <div class="palette-swatches">
+      <div class="swatch" style="background:#86efac"></div>
+      <div class="swatch" style="background:#34d399"></div>
+      <div class="swatch" style="background:#a3e635"></div>
+      <div class="swatch" style="background:#2dd4bf"></div>
+    </div>
+    <div class="palette-desc">Dark green base</div>
+  </div>
+
+  <div class="palette-card" onclick="applyPalette('rose')" id="card-rose">
+    <div class="palette-name" style="color:#f472b6">Rose Neon</div>
+    <div class="palette-swatches">
+      <div class="swatch" style="background:#f472b6"></div>
+      <div class="swatch" style="background:#e879f9"></div>
+      <div class="swatch" style="background:#fb7185"></div>
+      <div class="swatch" style="background:#c084fc"></div>
+    </div>
+    <div class="palette-desc">Dark charcoal base</div>
+  </div>
+
+  <div class="palette-card" onclick="applyPalette('slate')" id="card-slate">
+    <div class="palette-name" style="color:#e3b341">GitHub Warm</div>
+    <div class="palette-swatches">
+      <div class="swatch" style="background:#58a6ff"></div>
+      <div class="swatch" style="background:#3fb950"></div>
+      <div class="swatch" style="background:#e3b341"></div>
+      <div class="swatch" style="background:#bc8cff"></div>
+    </div>
+    <div class="palette-desc">Slate dark base</div>
+  </div>
+
+</div>
+
+<!-- APP PREVIEW -->
+<div class="app-preview" id="preview">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <span class="app-title">📺 SeriesWatcher</span>
+    <div class="topbar-right">
+      <div class="fake-search">🔍 Search all series...</div>
+      <div class="btn-t">⬆ Import</div>
+      <div class="btn-t">☀️</div>
+    </div>
+  </div>
+
+  <!-- Strip -->
+  <div class="strip">
+    <div class="chip"><div class="dot" style="background:var(--c1)"></div>Ending <strong style="margin-left:3px;color:var(--text-primary)" id="n1">5</strong></div>
+    <div class="chip"><div class="dot" style="background:var(--c2)"></div>UpComing <strong style="margin-left:3px;color:var(--text-primary)">4</strong></div>
+    <div class="chip"><div class="dot" style="background:var(--c3)"></div>Fall Ending <strong style="margin-left:3px;color:var(--text-primary)">3</strong></div>
+    <div class="chip"><div class="dot" style="background:var(--c4)"></div>Unknown <strong style="margin-left:3px;color:var(--text-primary)">2</strong></div>
+    <span style="margin-left:auto;color:var(--text-muted);font-size:10px">14 total</span>
+  </div>
+
+  <!-- Grid -->
+  <div class="grid">
+
+    <div class="panel p1">
+      <div class="p-head">
+        <div class="p-head-l"><span class="p-icon">🔚</span><span class="p-title">Ending</span><span class="p-badge">5</span></div>
+        <button class="btn-add-p">+ Add</button>
+      </div>
+      <div class="p-scroll">
+        <table><colgroup><col style="width:48%"/><col style="width:24%"/><col style="width:28%"/></colgroup>
+          <thead><tr><th>Name</th><th>Date</th><th></th></tr></thead>
+          <tbody>
+            <tr class="past"><td>The Boys</td><td class="dt">2025-09-15</td><td class="acts"><button class="ba be">✏️</button><button class="ba bd">🗑</button><button class="ba bs">🔍</button></td></tr>
+            <tr class="past alt"><td>Andor</td><td class="dt">2025-12-01</td><td class="acts"><button class="ba be">✏️</button><button class="ba bd">🗑</button><button class="ba bs">🔍</button></td></tr>
+            <tr><td>The Last of Us</td><td>2026-01-14</td><td class="acts"><button class="ba be">✏️</button><button class="ba bd">🗑</button><button class="ba bs">🔍</button></td></tr>
+            <tr class="alt"><td>Severance S3</td><td>2026-03-22</td><td class="acts"><button class="ba be">✏️</button><button class="ba bd">🗑</button><button class="ba bs">🔍</button></td></tr>
+            <tr><td>House of Dragon</td><td>2026-05-31</td><td class="acts"><button class="ba be">✏️</button><button class="ba bd">🗑</button><button class="ba bs">🔍</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel p2">
+      <div class="p-head">
+        <div class="p-head-l"><span class="p-icon">📅</span><span class="p-title">UpComing</span><span class="p-badge">4</span></div>
+        <button class="btn-add-p">+ Add</button>
+      </div>
+      <div class="p-scroll">
+        <table><colgroup><col style="width:48%"/><col style="width:24%"/><col style="width:28%"/></colgroup>
+          <thead><tr><th>Name</th><th>Date</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>Squid Game S3</td><td>2026-07-01</td><td class="acts"><button class="ba be">✏️</button><button class="ba bd">🗑</button><button class="ba bs">🔍</button></td></tr>
+            <tr class="alt"><td>Mandalorian S4</td><td>2026-08-20</td><td class="acts"><button class="ba be">✏️</button><button class="ba bd">🗑</button><button class="ba bs">🔍</button></td></tr>
+            <tr><td>Stranger Things 5</td><td>2026-10-15</td><td class="acts"><button class="ba be">✏️</button><button class="ba bd">🗑</button><button class="ba bs">🔍</button></td></tr>
+            <tr class="alt"><td>Peaky Blinders Film</td><td>2027-01-01</td><td class="acts"><button class="ba be">✏️</button><button class="ba bd">🗑</button><button class="ba bs">🔍</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel p3">
+      <div class="p-head">
+        <div class="p-head-l"><span class="p-icon">🍂</span><span class="p-title">Fall Ending</span><span class="p-badge">3</span></div>
+        <button class="btn-add-p">+ Add</button>
+      </div>
+      <div class="p-scroll">
+        <table><colgroup><col style="width:48%"/><col style="width:24%"/><col style="width:28%"/></colgroup>
+          <thead><tr><th>Name</th><th>Date</th><th></th></tr></thead>
+          <tbody>
+            <tr class="past"><td>Better Call Saul</td><td class="dt">2025-08-10</td><td class="acts"><button class="ba be">✏️</button><button class="ba bd">🗑</button><button class="ba bs">🔍</button></td></tr>
+            <tr class="past alt"><td>Ozark</td><td class="dt">2025-11-30</td><td class="acts"><button class="ba be">✏️</button><button class="ba bd">🗑</button><button class="ba bs">🔍</button></td></tr>
+            <tr><td>Succession</td><td>2026-09-01</td><td class="acts"><button class="ba be">✏️</button><button class="ba bd">🗑</button><button class="ba bs">🔍</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel p4">
+      <div class="p-head">
+        <div class="p-head-l"><span class="p-icon">❓</span><span class="p-title">Unknown</span><span class="p-badge">2</span></div>
+        <button class="btn-add-p">+ Add</button>
+      </div>
+      <div class="p-scroll">
+        <table><colgroup><col style="width:48%"/><col style="width:24%"/><col style="width:28%"/></colgroup>
+          <thead><tr><th>Name</th><th>Last Check</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>Dark Season 4</td><td>2026-02-15</td><td class="acts"><button class="ba be">✏️</button><button class="ba bd">🗑</button><button class="ba bs">🔍</button></td></tr>
+            <tr class="alt"><td>The Wire Reboot</td><td>2026-01-01</td><td class="acts"><button class="ba be">✏️</button><button class="ba bd">🗑</button><button class="ba bs">🔍</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const PALETTES = {
+  cosmic: {
+    bg:'#0c0c14', surface:'#14141f', surface2:'#1a1a2e', border:'#2d2d50', borderSoft:'#22223a',
+    textPrimary:'#e8e8f0', textSecondary:'#8888aa', textMuted:'#44445a', inputBg:'#0c0c14',
+    rowAlt:'#111120', shadow:'rgba(0,0,0,0.5)', pastBg:'#2a1e00', pastText:'#f59e0b',
+    delBg:'#2a1010', delText:'#f87171', accent:'#a78bfa', accentText:'#0c0c14',
+    c1:'#60a5fa', c1d:'#1a2a40', c2:'#34d399', c2d:'#0f2a20',
+    c3:'#fb923c', c3d:'#2a1a08', c4:'#a78bfa', c4d:'#1e1430',
+  },
+  ocean: {
+    bg:'#040d1a', surface:'#0a1628', surface2:'#0e1e34', border:'#1a3050', borderSoft:'#122540',
+    textPrimary:'#d8eaf8', textSecondary:'#6090b8', textMuted:'#2a4060', inputBg:'#040d1a',
+    rowAlt:'#071220', shadow:'rgba(0,0,0,0.6)', pastBg:'#2a1e00', pastText:'#f59e0b',
+    delBg:'#2a1010', delText:'#f87171', accent:'#22d3ee', accentText:'#040d1a',
+    c1:'#22d3ee', c1d:'#062030', c2:'#2dd4bf', c2d:'#061e1a',
+    c3:'#38bdf8', c3d:'#061828', c4:'#818cf8', c4d:'#10101e',
+  },
+  ember: {
+    bg:'#110805', surface:'#1c100a', surface2:'#221510', border:'#3a2010', borderSoft:'#2a1a08',
+    textPrimary:'#f0e0d0', textSecondary:'#a07060', textMuted:'#503020', inputBg:'#110805',
+    rowAlt:'#160c06', shadow:'rgba(0,0,0,0.6)', pastBg:'#2a1e00', pastText:'#fbbf24',
+    delBg:'#2a1010', delText:'#f87171', accent:'#fb923c', accentText:'#110805',
+    c1:'#fbbf24', c1d:'#2a1e04', c2:'#fb923c', c2d:'#2a1208',
+    c3:'#f87171', c3d:'#2a0e0e', c4:'#fb7185', c4d:'#2a0e14',
+  },
+  forest: {
+    bg:'#050f0a', surface:'#0a1810', surface2:'#0e2016', border:'#1a3020', borderSoft:'#122018',
+    textPrimary:'#d0f0d8', textSecondary:'#60a070', textMuted:'#284030', inputBg:'#050f0a',
+    rowAlt:'#071410', shadow:'rgba(0,0,0,0.6)', pastBg:'#2a1e00', pastText:'#fbbf24',
+    delBg:'#2a1010', delText:'#f87171', accent:'#34d399', accentText:'#050f0a',
+    c1:'#86efac', c1d:'#0a2014', c2:'#34d399', c2d:'#071a10',
+    c3:'#a3e635', c3d:'#101a04', c4:'#2dd4bf', c4d:'#061a18',
+  },
+  rose: {
+    bg:'#0e0a12', surface:'#160f1e', surface2:'#1c1428', border:'#362040', borderSoft:'#281830',
+    textPrimary:'#f0d8f8', textSecondary:'#a070c0', textMuted:'#503060', inputBg:'#0e0a12',
+    rowAlt:'#120c18', shadow:'rgba(0,0,0,0.6)', pastBg:'#2a1e00', pastText:'#fbbf24',
+    delBg:'#2a1010', delText:'#f87171', accent:'#e879f9', accentText:'#0e0a12',
+    c1:'#f472b6', c1d:'#2a0a1a', c2:'#e879f9', c2d:'#200a28',
+    c3:'#fb7185', c3d:'#2a0a10', c4:'#c084fc', c4d:'#180a28',
+  },
+  slate: {
+    bg:'#0d1117', surface:'#161b22', surface2:'#1c2128', border:'#30363d', borderSoft:'#21262d',
+    textPrimary:'#e6edf3', textSecondary:'#8b949e', textMuted:'#484f58', inputBg:'#0d1117',
+    rowAlt:'#111820', shadow:'rgba(0,0,0,0.5)', pastBg:'#272012', pastText:'#e3b341',
+    delBg:'#2a1010', delText:'#f85149', accent:'#58a6ff', accentText:'#0d1117',
+    c1:'#58a6ff', c1d:'#102030', c2:'#3fb950', c2d:'#0e2010',
+    c3:'#e3b341', c3d:'#281e08', c4:'#bc8cff', c4d:'#1e1030',
+  },
+};
+
+function applyPalette(name) {
+  document.querySelectorAll('.palette-card').forEach(c=>c.classList.remove('active'));
+  document.getElementById('card-'+name).classList.add('active');
+  const p = PALETTES[name];
+  const el = document.getElementById('preview');
+  el.style.setProperty('--bg',         p.bg);
+  el.style.setProperty('--surface',    p.surface);
+  el.style.setProperty('--surface2',   p.surface2);
+  el.style.setProperty('--border',     p.border);
+  el.style.setProperty('--border-soft',p.borderSoft);
+  el.style.setProperty('--text-primary',p.textPrimary);
+  el.style.setProperty('--text-secondary',p.textSecondary);
+  el.style.setProperty('--text-muted', p.textMuted);
+  el.style.setProperty('--input-bg',   p.inputBg);
+  el.style.setProperty('--row-alt',    p.rowAlt);
+  el.style.setProperty('--shadow',     p.shadow);
+  el.style.setProperty('--past-bg',    p.pastBg);
+  el.style.setProperty('--past-text',  p.pastText);
+  el.style.setProperty('--del-bg',     p.delBg);
+  el.style.setProperty('--del-text',   p.delText);
+  el.style.setProperty('--accent',     p.accent);
+  el.style.setProperty('--accent-text',p.accentText);
+  el.style.setProperty('--c1',  p.c1);  el.style.setProperty('--c1d', p.c1d);
+  el.style.setProperty('--c2',  p.c2);  el.style.setProperty('--c2d', p.c2d);
+  el.style.setProperty('--c3',  p.c3);  el.style.setProperty('--c3d', p.c3d);
+  el.style.setProperty('--c4',  p.c4);  el.style.setProperty('--c4d', p.c4d);
+  document.body.style.background = p.bg;
+}
+</script>
+</body>
+</html>

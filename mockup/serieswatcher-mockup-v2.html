@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SeriesWatcher — All-in-One Mockup</title>
+<style>
+  :root[data-theme='dark'] {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #1e3a5f;
+    --accent: #58a6ff;
+    --accent-hover: #79b8ff;
+    --accent-text: #0d1117;
+    --text-primary: #e6edf3;
+    --text-secondary: #8b949e;
+    --text-muted: #484f58;
+    --btn-delete-bg: #3a1a1a;
+    --btn-delete-text: #f85149;
+    --input-bg: #0d1117;
+    --row-alt: #0d1420;
+    --date-past-bg: #3a2e00;
+    --date-past-text: #f0c000;
+    --scrollbar: #1e3a5f;
+    --section-header: #0d1420;
+  }
+  :root[data-theme='light'] {
+    --bg: #f6f8fa;
+    --surface: #ffffff;
+    --border: #d0d7de;
+    --accent: #0969da;
+    --accent-hover: #0860ca;
+    --accent-text: #ffffff;
+    --text-primary: #1f2328;
+    --text-secondary: #656d76;
+    --text-muted: #9198a1;
+    --btn-delete-bg: #ffebe9;
+    --btn-delete-text: #cf222e;
+    --input-bg: #f6f8fa;
+    --row-alt: #f0f3f6;
+    --date-past-bg: #fff9c4;
+    --date-past-text: #7a6000;
+    --scrollbar: #d0d7de;
+    --section-header: #f0f3f6;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 13px;
+    background: var(--bg);
+    color: var(--text-primary);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 3px; }
+
+  /* ── Top Bar ── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 18px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    gap: 10px;
+  }
+  .topbar-title {
+    color: var(--accent);
+    font-size: 15px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .topbar-actions { display: flex; gap: 7px; align-items: center; }
+
+  .search-input {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 11px;
+    color: var(--text-primary);
+    font-size: 12px;
+    width: 220px;
+    outline: none;
+    transition: border-color 0.15s;
+    font-family: inherit;
+  }
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--text-muted); }
+
+  .btn-topbar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 11px;
+    color: var(--text-secondary);
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.15s, color 0.15s;
+    font-family: inherit;
+  }
+  .btn-topbar:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Main scroll area ── */
+  .main-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 18px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  /* ── Search results banner ── */
+  .search-banner {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+    border-radius: 7px;
+    font-size: 12px;
+    color: var(--accent);
+  }
+  .search-banner.visible { display: flex; }
+
+  /* ── Section ── */
+  .section { display: flex; flex-direction: column; }
+  .section.hidden { display: none; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 12px;
+    background: var(--section-header);
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    user-select: none;
+    cursor: pointer;
+  }
+  .section-header:hover .section-title { color: var(--accent); }
+
+  .section-header-left { display: flex; align-items: center; gap: 9px; }
+  .section-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: color 0.15s;
+  }
+  .section-icon { font-size: 14px; }
+  .section-count {
+    background: var(--border);
+    color: var(--text-secondary);
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 1px 7px;
+    min-width: 20px;
+    text-align: center;
+  }
+  .section-count.has-past {
+    background: color-mix(in srgb, var(--date-past-bg) 80%, transparent);
+    color: var(--date-past-text);
+  }
+
+  .btn-section-add {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 3px 10px;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .btn-section-add:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-text);
+  }
+
+  /* ── Table ── */
+  .section-table-wrap {
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+  }
+  .section-table-wrap.collapsed { display: none; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  colgroup col:nth-child(1) { width: 50%; }
+  colgroup col:nth-child(2) { width: 22%; }
+  colgroup col:nth-child(3) { width: 28%; }
+
+  thead th {
+    background: var(--surface);
+    color: var(--accent);
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    padding: 6px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody td {
+    padding: 7px 12px;
+    font-size: 12px;
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 25%, transparent);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr.row-alt td { background: var(--row-alt); }
+  tbody tr.row-past td { background: var(--date-past-bg); }
+  tbody tr.row-past .cell-date { color: var(--date-past-text); font-weight: 600; }
+
+  .actions-cell { text-align: right; padding-right: 10px !important; }
+  .btn-action {
+    border: none;
+    border-radius: 4px;
+    font-size: 11px;
+    padding: 3px 7px;
+    cursor: pointer;
+    margin-left: 3px;
+    transition: opacity 0.15s, background 0.15s;
+    font-family: inherit;
+  }
+  .btn-edit { background: var(--border); color: var(--accent); }
+  .btn-edit:hover { background: var(--accent); color: var(--accent-text); }
+  .btn-delete { background: var(--btn-delete-bg); color: var(--btn-delete-text); }
+  .btn-delete:hover { opacity: 0.75; }
+  .btn-myep {
+    background: var(--surface);
+    color: var(--text-secondary);
+    border: 1px solid var(--border) !important;
+  }
+  .btn-myep:hover { border-color: var(--accent) !important; color: var(--accent); }
+
+  .empty-row td {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 14px !important;
+    font-size: 12px;
+    font-style: italic;
+  }
+
+  /* ── Search results flat table ── */
+  .search-results { display: none; }
+  .search-results.visible { display: block; }
+  .search-results thead th:last-child { text-align: right; padding-right: 10px; }
+
+  .list-pill {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    border: 1px solid;
+  }
+  .pill-Ending     { color: #58a6ff; border-color: #1e3a5f; background: color-mix(in srgb, #1e3a5f 40%, transparent); }
+  .pill-UpComing   { color: #3fb950; border-color: #1a3a1a; background: color-mix(in srgb, #1a3a1a 40%, transparent); }
+  .pill-FallEnding { color: #f0a000; border-color: #3a2e00; background: color-mix(in srgb, #3a2e00 40%, transparent); }
+  .pill-Unknown    { color: #8b949e; border-color: #2a2a2a; background: color-mix(in srgb, #2a2a2a 40%, transparent); }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100;
+  }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    padding: 26px;
+    width: 370px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+  }
+  .modal h2 { color: var(--accent); font-size: 16px; font-weight: 700; margin-bottom: 18px; }
+  .modal form { display: flex; flex-direction: column; gap: 13px; }
+  .modal label { display: flex; flex-direction: column; gap: 5px; }
+  .modal label span {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px;
+    color: var(--text-secondary); font-weight: 600;
+  }
+  .modal input, .modal select {
+    background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px 11px; color: var(--text-primary); font-size: 13px;
+    outline: none; transition: border-color 0.15s; font-family: inherit;
+  }
+  .modal input:focus, .modal select:focus { border-color: var(--accent); }
+  .modal select option { background: var(--surface); }
+  .modal-actions { display: flex; gap: 9px; justify-content: flex-end; margin-top: 4px; }
+  .btn-cancel {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px 16px; color: var(--text-secondary); font-size: 13px; cursor: pointer; font-family: inherit;
+  }
+  .btn-save {
+    background: var(--accent); border: none; border-radius: 6px;
+    padding: 8px 18px; color: var(--accent-text); font-size: 13px;
+    font-weight: 700; cursor: pointer; font-family: inherit;
+  }
+  .btn-save:hover { background: var(--accent-hover); }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed; bottom: 22px; right: 22px;
+    background: var(--accent); color: var(--accent-text);
+    padding: 10px 18px; border-radius: 7px;
+    font-size: 13px; font-weight: 600;
+    z-index: 300; display: none;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  }
+
+  /* ── Legend ── */
+  .legend {
+    position: fixed; bottom: 16px; left: 18px;
+    display: flex; align-items: center; gap: 14px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 13px;
+    font-size: 11px; color: var(--text-secondary);
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .swatch { width: 11px; height: 11px; border-radius: 2px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <span class="topbar-title">📺 SeriesWatcher</span>
+  <div class="topbar-actions">
+    <input class="search-input" type="text" placeholder="Search all series..." id="searchInput" oninput="handleSearch(this.value)" />
+    <button class="btn-topbar" onclick="showImportToast()">⬆ Import</button>
+    <button class="btn-topbar" onclick="toggleTheme()" id="themeBtn">☀️</button>
+  </div>
+</div>
+
+<!-- MAIN SCROLL -->
+<div class="main-scroll" id="mainScroll">
+
+  <!-- Search banner -->
+  <div class="search-banner" id="searchBanner">
+    <span>🔍</span>
+    <span id="searchBannerText"></span>
+    <span style="margin-left:auto;cursor:pointer;font-size:13px" onclick="clearSearch()">✕ Clear</span>
+  </div>
+
+  <!-- Search results (flat table shown while searching) -->
+  <div class="search-results" id="searchResults">
+    <div class="section-header" style="cursor:default;border-radius:8px 8px 0 0">
+      <div class="section-header-left">
+        <span class="section-title" id="searchResultsTitle">Results</span>
+      </div>
+    </div>
+    <div class="section-table-wrap">
+      <table>
+        <colgroup><col style="width:40%"/><col style="width:18%"/><col style="width:18%"/><col style="width:24%"/></colgroup>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>List</th>
+            <th>Date</th>
+            <th style="text-align:right;padding-right:10px">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="searchResultsBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTIONS -->
+  <div id="sections">
+    <div id="section-Ending" class="section">
+      <div class="section-header" onclick="toggleSection('Ending')">
+        <div class="section-header-left">
+          <span class="section-icon">🔚</span>
+          <span class="section-title">Ending</span>
+          <span class="section-count" id="count-Ending">5</span>
+        </div>
+        <button class="btn-section-add" onclick="event.stopPropagation();showModal('Ending')">+ Add</button>
+      </div>
+      <div class="section-table-wrap" id="wrap-Ending">
+        <table><colgroup><col/><col/><col/></colgroup>
+          <thead><tr><th>Name</th><th>Date</th><th style="text-align:right;padding-right:10px">Actions</th></tr></thead>
+          <tbody id="tbody-Ending"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="section-UpComing" class="section">
+      <div class="section-header" onclick="toggleSection('UpComing')">
+        <div class="section-header-left">
+          <span class="section-icon">📅</span>
+          <span class="section-title">UpComing</span>
+          <span class="section-count" id="count-UpComing">4</span>
+        </div>
+        <button class="btn-section-add" onclick="event.stopPropagation();showModal('UpComing')">+ Add</button>
+      </div>
+      <div class="section-table-wrap" id="wrap-UpComing">
+        <table><colgroup><col/><col/><col/></colgroup>
+          <thead><tr><th>Name</th><th>Date</th><th style="text-align:right;padding-right:10px">Actions</th></tr></thead>
+          <tbody id="tbody-UpComing"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="section-FallEnding" class="section">
+      <div class="section-header" onclick="toggleSection('FallEnding')">
+        <div class="section-header-left">
+          <span class="section-icon">🍂</span>
+          <span class="section-title">Fall Ending</span>
+          <span class="section-count" id="count-FallEnding">3</span>
+        </div>
+        <button class="btn-section-add" onclick="event.stopPropagation();showModal('FallEnding')">+ Add</button>
+      </div>
+      <div class="section-table-wrap" id="wrap-FallEnding">
+        <table><colgroup><col/><col/><col/></colgroup>
+          <thead><tr><th>Name</th><th>Date</th><th style="text-align:right;padding-right:10px">Actions</th></tr></thead>
+          <tbody id="tbody-FallEnding"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="section-Unknown" class="section">
+      <div class="section-header" onclick="toggleSection('Unknown')">
+        <div class="section-header-left">
+          <span class="section-icon">❓</span>
+          <span class="section-title">Unknown</span>
+          <span class="section-count" id="count-Unknown">2</span>
+        </div>
+        <button class="btn-section-add" onclick="event.stopPropagation();showModal('Unknown')">+ Add</button>
+      </div>
+      <div class="section-table-wrap" id="wrap-Unknown">
+        <table><colgroup><col/><col/><col/></colgroup>
+          <thead><tr><th>Name</th><th>Last Check</th><th style="text-align:right;padding-right:10px">Actions</th></tr></thead>
+          <tbody id="tbody-Unknown"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="legend-item">
+    <div class="swatch" style="background:var(--date-past-bg);border:1px solid var(--date-past-text)"></div>
+    Past date
+  </div>
+  <div class="legend-item">
+    <div class="swatch" style="background:var(--row-alt)"></div>
+    Alternate row
+  </div>
+  <span style="color:var(--text-muted)">· Click headers to collapse</span>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" style="display:none" onclick="hideModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h2 id="modalTitle">Add Series</h2>
+    <form onsubmit="saveModal(event)">
+      <label><span>Name *</span><input type="text" id="modalName" placeholder="e.g. Breaking Bad" required /></label>
+      <label><span>Date</span><input type="date" id="modalDate" /></label>
+      <label><span>List</span>
+        <select id="modalList">
+          <option value="Ending">Ending</option>
+          <option value="UpComing">UpComing</option>
+          <option value="FallEnding">Fall Ending</option>
+          <option value="Unknown">Unknown</option>
+        </select>
+      </label>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" onclick="document.getElementById('modal').style.display='none'">Cancel</button>
+        <button type="submit" class="btn-save">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DATA = [
+  { id:1,  name:"The Last of Us",       date:"20260114", list:"Ending"     },
+  { id:2,  name:"Severance",             date:"20260322", list:"Ending"     },
+  { id:3,  name:"House of the Dragon",   date:"20260531", list:"Ending"     },
+  { id:4,  name:"The Boys",              date:"20250915", list:"Ending"     },
+  { id:5,  name:"Andor",                 date:"20251201", list:"Ending"     },
+  { id:6,  name:"Stranger Things 5",     date:"20261015", list:"UpComing"   },
+  { id:7,  name:"The Mandalorian S4",    date:"20260820", list:"UpComing"   },
+  { id:8,  name:"Squid Game S3",         date:"20260701", list:"UpComing"   },
+  { id:9,  name:"Peaky Blinders Film",   date:"20270101", list:"UpComing"   },
+  { id:10, name:"Better Call Saul",      date:"20250810", list:"FallEnding" },
+  { id:11, name:"Ozark",                 date:"20251130", list:"FallEnding" },
+  { id:12, name:"Succession",            date:"20260901", list:"FallEnding" },
+  { id:13, name:"Dark Season 4",         date:"20260215", list:"Unknown"    },
+  { id:14, name:"The Wire Reboot",       date:"20260101", list:"Unknown"    },
+];
+let nextId = 15;
+const today = new Date().toISOString().slice(0,10).replace(/-/g,'');
+const collapsed = {};
+
+function isPast(d) { return d < today; }
+function fmt(d) { return d && d.length===8 ? `${d.slice(0,4)}-${d.slice(4,6)}-${d.slice(6,8)}` : d; }
+
+function actionBtns(id) {
+  return `<td class="actions-cell">
+    <button class="btn-action btn-edit"   onclick="editRow(${id})">✏️</button>
+    <button class="btn-action btn-delete" onclick="deleteRow(${id})">🗑</button>
+    <button class="btn-action btn-myep"   onclick="openMyEp(${id})" title="MyEpisodes">🔍</button>
+  </td>`;
+}
+
+function renderSection(list) {
+  const rows = DATA.filter(r => r.list === list).sort((a,b) => a.date.localeCompare(b.date));
+  const tbody = document.getElementById('tbody-'+list);
+  const pastCount = rows.filter(r => isPast(r.date) && list !== 'Unknown').length;
+  const countEl = document.getElementById('count-'+list);
+  countEl.textContent = rows.length;
+  countEl.classList.toggle('has-past', pastCount > 0);
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="3">No series — click + Add to get started</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = rows.map((r,i) => {
+    const past = list !== 'Unknown' && isPast(r.date);
+    const cls = past ? 'row-past' : i%2===1 ? 'row-alt' : '';
+    return `<tr class="${cls}">
+      <td>${r.name}</td>
+      <td class="cell-date">${fmt(r.date)}</td>
+      ${actionBtns(r.id)}
+    </tr>`;
+  }).join('');
+}
+
+function renderAll() {
+  ['Ending','UpComing','FallEnding','Unknown'].forEach(renderSection);
+}
+
+function toggleSection(list) {
+  collapsed[list] = !collapsed[list];
+  document.getElementById('wrap-'+list).classList.toggle('collapsed', !!collapsed[list]);
+}
+
+function handleSearch(q) {
+  const sections = document.getElementById('sections');
+  const banner = document.getElementById('searchBanner');
+  const results = document.getElementById('searchResults');
+  const input = q.trim().toLowerCase();
+
+  if (!input) {
+    sections.style.display = '';
+    banner.classList.remove('visible');
+    results.classList.remove('visible');
+    return;
+  }
+
+  const found = DATA.filter(r => r.name.toLowerCase().includes(input));
+  sections.style.display = 'none';
+  banner.classList.add('visible');
+  results.classList.add('visible');
+
+  document.getElementById('searchBannerText').textContent =
+    found.length ? `${found.length} result${found.length!==1?'s':''} for "${q.trim()}"` : `No results for "${q.trim()}"`;
+  document.getElementById('searchResultsTitle').textContent =
+    `${found.length} Result${found.length!==1?'s':''}`;
+
+  const listLabels = { Ending:'Ending', UpComing:'UpComing', FallEnding:'Fall Ending', Unknown:'Unknown' };
+  document.getElementById('searchResultsBody').innerHTML = found.length
+    ? found.map((r,i) => {
+        const past = r.list !== 'Unknown' && isPast(r.date);
+        const cls = past ? 'row-past' : i%2===1 ? 'row-alt' : '';
+        return `<tr class="${cls}">
+          <td>${r.name}</td>
+          <td><span class="list-pill pill-${r.list}">${listLabels[r.list]}</span></td>
+          <td class="cell-date">${fmt(r.date)}</td>
+          ${actionBtns(r.id)}
+        </tr>`;
+      }).join('')
+    : `<tr class="empty-row"><td colspan="4">No matches</td></tr>`;
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  handleSearch('');
+}
+
+function deleteRow(id) {
+  const idx = DATA.findIndex(r => r.id===id);
+  if (idx===-1) return;
+  const name = DATA[idx].name;
+  DATA.splice(idx,1);
+  renderAll();
+  const q = document.getElementById('searchInput').value;
+  if (q.trim()) handleSearch(q); else clearSearch();
+  toast(`Deleted "${name}"`);
+}
+
+let editingId = null;
+function showModal(list, id) {
+  editingId = id || null;
+  if (id) {
+    const r = DATA.find(r=>r.id===id);
+    document.getElementById('modalTitle').textContent = 'Edit Series';
+    document.getElementById('modalName').value = r.name;
+    document.getElementById('modalDate').value = fmt(r.date);
+    document.getElementById('modalList').value = r.list;
+  } else {
+    document.getElementById('modalTitle').textContent = 'Add Series';
+    document.getElementById('modalName').value = '';
+    document.getElementById('modalDate').value = new Date().toISOString().slice(0,10);
+    document.getElementById('modalList').value = list || 'Ending';
+  }
+  document.getElementById('modal').style.display = 'flex';
+  setTimeout(()=>document.getElementById('modalName').focus(),50);
+}
+
+function editRow(id) { showModal(null, id); }
+
+function saveModal(e) {
+  e.preventDefault();
+  const name = document.getElementById('modalName').value.trim();
+  const date = document.getElementById('modalDate').value.replace(/-/g,'');
+  const list = document.getElementById('modalList').value;
+  if (editingId) {
+    const r = DATA.find(r=>r.id===editingId);
+    r.name=name; r.date=date; r.list=list;
+    toast('Series updated');
+  } else {
+    DATA.push({id:nextId++, name, date, list});
+    toast('Series added');
+  }
+  document.getElementById('modal').style.display='none';
+  renderAll();
+  const q = document.getElementById('searchInput').value;
+  if (q.trim()) handleSearch(q);
+}
+
+function hideModal(e) { if(e.target.id==='modal') document.getElementById('modal').style.display='none'; }
+
+function openMyEp(id) {
+  const r = DATA.find(r=>r.id===id);
+  if(r) toast(`Opening MyEpisodes for "${r.name}"`);
+}
+function showImportToast() { toast('Imported 14 series (0 skipped)'); }
+
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.style.display = 'block';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ el.style.display='none'; }, 3000);
+}
+
+function toggleTheme() {
+  const dark = document.documentElement.getAttribute('data-theme')==='dark';
+  document.documentElement.setAttribute('data-theme', dark?'light':'dark');
+  document.getElementById('themeBtn').textContent = dark ? '🌙' : '☀️';
+}
+
+renderAll();
+</script>
+</body>
+</html>

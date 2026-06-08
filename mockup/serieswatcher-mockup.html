@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SeriesWatcher — App Mockup</title>
+<style>
+  :root[data-theme='dark'] {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #1e3a5f;
+    --accent: #58a6ff;
+    --accent-hover: #79b8ff;
+    --accent-text: #0d1117;
+    --text-primary: #e6edf3;
+    --text-secondary: #8b949e;
+    --text-muted: #484f58;
+    --btn-delete-bg: #3a1a1a;
+    --btn-delete-text: #f85149;
+    --scrollbar: #1e3a5f;
+    --input-bg: #0d1117;
+    --row-alt: #0d1420;
+    --date-past-bg: #3a2e00;
+    --date-past-text: #f0c000;
+    --badge-bg: #1e3a5f;
+  }
+  :root[data-theme='light'] {
+    --bg: #f6f8fa;
+    --surface: #ffffff;
+    --border: #d0d7de;
+    --accent: #0969da;
+    --accent-hover: #0860ca;
+    --accent-text: #ffffff;
+    --text-primary: #1f2328;
+    --text-secondary: #656d76;
+    --text-muted: #9198a1;
+    --btn-delete-bg: #ffebe9;
+    --btn-delete-text: #cf222e;
+    --scrollbar: #d0d7de;
+    --input-bg: #f6f8fa;
+    --row-alt: #f0f3f6;
+    --date-past-bg: #fff9c4;
+    --date-past-text: #7a6000;
+    --badge-bg: #dce6f0;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 13px;
+    background: var(--bg);
+    color: var(--text-primary);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── Top Bar ── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 16px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    gap: 10px;
+  }
+  .topbar-title {
+    color: var(--accent);
+    font-size: 15px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .topbar-actions {
+    display: flex;
+    gap: 7px;
+    align-items: center;
+  }
+  .search-input {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 11px;
+    color: var(--text-primary);
+    font-size: 12px;
+    width: 210px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--text-muted); }
+
+  .btn-topbar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 11px;
+    color: var(--text-secondary);
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .btn-topbar:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Layout ── */
+  .app-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 155px;
+    background: var(--bg);
+    border-right: 1px solid var(--border);
+    flex-shrink: 0;
+    padding: 8px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .sidebar-label {
+    padding: 5px 12px 8px;
+    color: var(--text-muted);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    font-weight: 600;
+  }
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 7px 12px;
+    color: var(--text-secondary);
+    font-size: 12px;
+    background: none;
+    border: none;
+    border-left: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.1s;
+    text-align: left;
+  }
+  .sidebar-item:hover {
+    color: var(--text-primary);
+    background: var(--surface);
+  }
+  .sidebar-item.active {
+    color: var(--text-primary);
+    background: color-mix(in srgb, var(--border) 40%, transparent);
+    border-left-color: var(--accent);
+    font-weight: 600;
+  }
+  .sidebar-item-left { display: flex; align-items: center; gap: 7px; }
+  .sidebar-icon { font-size: 13px; }
+  .badge {
+    background: var(--badge-bg);
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 10px;
+    padding: 1px 6px;
+    min-width: 20px;
+    text-align: center;
+  }
+  .sidebar-item.active .badge {
+    background: var(--accent);
+    color: var(--accent-text);
+  }
+
+  /* ── Main content ── */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .table-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 14px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .table-toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .toolbar-title {
+    color: var(--text-secondary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-weight: 600;
+  }
+  .toolbar-count {
+    color: var(--text-muted);
+    font-size: 11px;
+  }
+  .btn-add {
+    background: var(--accent);
+    color: var(--accent-text);
+    border: none;
+    border-radius: 5px;
+    padding: 5px 13px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-add:hover { background: var(--accent-hover); }
+
+  /* ── Table ── */
+  .table-scroll { flex: 1; overflow-y: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  colgroup col:nth-child(1) { width: 45%; }
+  colgroup col:nth-child(2) { width: 25%; }
+  colgroup col:nth-child(3) { width: 30%; }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    color: var(--accent);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    padding: 7px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    z-index: 1;
+  }
+  tbody td {
+    padding: 8px 14px;
+    font-size: 12px;
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 30%, transparent);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  tr.row-alt td { background: var(--row-alt); }
+  tr.row-past td {
+    background: var(--date-past-bg);
+  }
+  tr.row-past .cell-name { color: var(--text-primary); font-weight: 500; }
+  tr.row-past .cell-date { color: var(--date-past-text); font-weight: 600; }
+  .actions-cell { text-align: right; padding-right: 10px !important; }
+  .btn-action {
+    border: none;
+    border-radius: 4px;
+    font-size: 11px;
+    padding: 3px 7px;
+    cursor: pointer;
+    margin-left: 4px;
+    transition: opacity 0.15s, background 0.15s;
+  }
+  .btn-edit {
+    background: var(--badge-bg);
+    color: var(--accent);
+  }
+  .btn-edit:hover { background: var(--accent); color: var(--accent-text); }
+  .btn-delete {
+    background: var(--btn-delete-bg);
+    color: var(--btn-delete-text);
+  }
+  .btn-delete:hover { opacity: 0.75; }
+  .btn-search {
+    background: var(--surface);
+    color: var(--text-secondary);
+    border: 1px solid var(--border) !important;
+  }
+  .btn-search:hover { border-color: var(--accent) !important; color: var(--accent); }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed;
+    bottom: 22px;
+    right: 22px;
+    background: var(--accent);
+    color: var(--accent-text);
+    padding: 10px 18px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 200;
+    animation: slideUp 0.25s ease;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  }
+  @keyframes slideUp {
+    from { transform: translateY(10px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    animation: fadeIn 0.15s ease;
+  }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    padding: 26px;
+    width: 370px;
+    animation: slideDown 0.15s ease;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+  }
+  .modal h2 {
+    color: var(--accent);
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 18px;
+  }
+  .modal form { display: flex; flex-direction: column; gap: 13px; }
+  .modal label { display: flex; flex-direction: column; gap: 5px; }
+  .modal label span {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+  .modal input, .modal select {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 11px;
+    color: var(--text-primary);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+    font-family: inherit;
+  }
+  .modal input:focus, .modal select:focus { border-color: var(--accent); }
+  .modal select option { background: var(--surface); }
+  .modal-actions {
+    display: flex;
+    gap: 9px;
+    justify-content: flex-end;
+    margin-top: 6px;
+  }
+  .btn-cancel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 16px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .btn-cancel:hover { border-color: var(--text-secondary); }
+  .btn-save {
+    background: var(--accent);
+    border: none;
+    border-radius: 6px;
+    padding: 8px 18px;
+    color: var(--accent-text);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-save:hover { background: var(--accent-hover); }
+
+  @keyframes fadeIn  { from { opacity: 0 } to { opacity: 1 } }
+  @keyframes slideDown { from { transform: translateY(-10px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+
+  /* ── Legend ── */
+  .legend {
+    position: fixed;
+    bottom: 22px;
+    left: 172px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-swatch {
+    width: 12px; height: 12px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <span class="topbar-title">📺 SeriesWatcher</span>
+  <div class="topbar-actions">
+    <input class="search-input" type="text" placeholder="Search all series..." id="searchInput" oninput="handleSearch(this.value)" />
+    <button class="btn-topbar" onclick="showImportToast()">⬆ Import</button>
+    <button class="btn-topbar" onclick="toggleTheme()" id="themeBtn">☀️</button>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="app-body">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-label">Lists</div>
+    <button class="sidebar-item" id="btn-All" onclick="selectList('All')">
+      <span class="sidebar-item-left"><span class="sidebar-icon">🔍</span> All</span>
+      <span class="badge" id="badge-All">14</span>
+    </button>
+    <button class="sidebar-item active" id="btn-Ending" onclick="selectList('Ending')">
+      <span class="sidebar-item-left"><span class="sidebar-icon">🔚</span> Ending</span>
+      <span class="badge" id="badge-Ending">5</span>
+    </button>
+    <button class="sidebar-item" id="btn-UpComing" onclick="selectList('UpComing')">
+      <span class="sidebar-item-left"><span class="sidebar-icon">📅</span> UpComing</span>
+      <span class="badge" id="badge-UpComing">4</span>
+    </button>
+    <button class="sidebar-item" id="btn-FallEnding" onclick="selectList('FallEnding')">
+      <span class="sidebar-item-left"><span class="sidebar-icon">🍂</span> Fall Ending</span>
+      <span class="badge" id="badge-FallEnding">3</span>
+    </button>
+    <button class="sidebar-item" id="btn-Unknown" onclick="selectList('Unknown')">
+      <span class="sidebar-item-left"><span class="sidebar-icon">❓</span> Unknown</span>
+      <span class="badge" id="badge-Unknown">2</span>
+    </button>
+  </div>
+
+  <!-- MAIN TABLE -->
+  <div class="main">
+    <div class="table-toolbar">
+      <div class="table-toolbar-left">
+        <span class="toolbar-title" id="toolbarTitle">Ending</span>
+        <span class="toolbar-count" id="toolbarCount">— 5 series</span>
+      </div>
+      <button class="btn-add" onclick="showModal()">+ Add</button>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <colgroup>
+          <col /><col /><col />
+        </colgroup>
+        <thead>
+          <tr>
+            <th id="colList" style="display:none">List</th>
+            <th>Name</th>
+            <th id="dateHeader">Date</th>
+            <th style="text-align:right;padding-right:10px">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="legend-item">
+    <div class="legend-swatch" style="background:var(--date-past-bg);border:1px solid var(--date-past-text)"></div>
+    Past air date
+  </div>
+  <div class="legend-item">
+    <div class="legend-swatch" style="background:var(--row-alt)"></div>
+    Alternate row
+  </div>
+  <span style="color:var(--text-muted)">· Click rows to interact</span>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" style="display:none" onclick="hideModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h2 id="modalTitle">Add Series</h2>
+    <form onsubmit="saveModal(event)">
+      <label>
+        <span>Name *</span>
+        <input type="text" id="modalName" placeholder="e.g. Breaking Bad" required autofocus />
+      </label>
+      <label>
+        <span>Date</span>
+        <input type="date" id="modalDate" />
+      </label>
+      <label>
+        <span>List</span>
+        <select id="modalList">
+          <option>Ending</option>
+          <option>UpComing</option>
+          <option>Fall Ending</option>
+          <option>Unknown</option>
+        </select>
+      </label>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" onclick="document.getElementById('modal').style.display='none'">Cancel</button>
+        <button type="submit" class="btn-save">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const ALL_DATA = [
+  // Ending — 5
+  { id:1,  name: "The Last of Us",        date: "20260114", list: "Ending"     },
+  { id:2,  name: "Severance",             date: "20260322", list: "Ending"     },
+  { id:3,  name: "House of the Dragon",   date: "20260531", list: "Ending"     },
+  { id:4,  name: "The Boys",              date: "20250915", list: "Ending"     },  // past
+  { id:5,  name: "Andor",                 date: "20251201", list: "Ending"     },  // past
+  // UpComing — 4
+  { id:6,  name: "Stranger Things 5",     date: "20261015", list: "UpComing"   },
+  { id:7,  name: "The Mandalorian S4",    date: "20260820", list: "UpComing"   },
+  { id:8,  name: "Squid Game S3",         date: "20260701", list: "UpComing"   },
+  { id:9,  name: "Peaky Blinders Film",   date: "20270101", list: "UpComing"   },
+  // Fall Ending — 3
+  { id:10, name: "Better Call Saul",      date: "20250810", list: "FallEnding" },  // past
+  { id:11, name: "Ozark",                 date: "20251130", list: "FallEnding" },  // past
+  { id:12, name: "Succession",            date: "20260901", list: "FallEnding" },
+  // Unknown — 2
+  { id:13, name: "Dark Season 4",         date: "20260215", list: "Unknown"    },
+  { id:14, name: "The Wire Reboot",       date: "20260101", list: "Unknown"    },
+];
+
+let currentList = 'Ending';
+let nextId = 15;
+const today = new Date().toISOString().slice(0,10).replace(/-/g,'');
+
+function isPast(date) { return date < today; }
+
+function toDisplay(yyyymmdd) {
+  if (!yyyymmdd || yyyymmdd.length !== 8) return '';
+  return `${yyyymmdd.slice(0,4)}-${yyyymmdd.slice(4,6)}-${yyyymmdd.slice(6,8)}`;
+}
+
+function getRows() {
+  if (currentList === 'All') return ALL_DATA;
+  return ALL_DATA.filter(r => r.list === currentList);
+}
+
+function render(rows) {
+  const isUnknown = currentList === 'Unknown';
+  const isAll = currentList === 'All';
+  document.getElementById('dateHeader').textContent = isUnknown ? 'Last Check' : 'Date';
+  document.getElementById('colList').style.display = isAll ? '' : 'none';
+
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+
+  if (!rows || rows.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:24px;font-size:12px">No series</td></tr>`;
+    return;
+  }
+
+  rows.forEach((row, i) => {
+    const past = !isUnknown && isPast(row.date);
+    const alt = !past && i % 2 === 1;
+    const cls = past ? 'row-past' : alt ? 'row-alt' : '';
+    const listCell = isAll ? `<td style="color:var(--text-muted);font-size:11px">${row.list.replace('FallEnding','Fall Ending')}</td>` : '';
+    tbody.innerHTML += `
+      <tr class="${cls}" id="row-${row.id}">
+        ${listCell}
+        <td class="cell-name">${row.name}</td>
+        <td class="cell-date">${toDisplay(row.date)}</td>
+        <td class="actions-cell">
+          <button class="btn-action btn-edit" onclick="editRow(${row.id})">✏️</button>
+          <button class="btn-action btn-delete" onclick="deleteRow(${row.id})">🗑</button>
+          <button class="btn-action btn-search" onclick="openMyEpisodes('${row.name}')" title="Search on MyEpisodes">🔍</button>
+        </td>
+      </tr>`;
+  });
+}
+
+function updateCounts() {
+  const counts = { All: ALL_DATA.length, Ending: 0, UpComing: 0, FallEnding: 0, Unknown: 0 };
+  ALL_DATA.forEach(r => counts[r.list]++);
+  Object.entries(counts).forEach(([k,v]) => {
+    const el = document.getElementById('badge-'+k);
+    if (el) el.textContent = v;
+  });
+}
+
+function selectList(list) {
+  currentList = list;
+  document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-'+list)?.classList.add('active');
+  const rows = getRows();
+  document.getElementById('toolbarTitle').textContent = list.replace('FallEnding','Fall Ending');
+  document.getElementById('toolbarCount').textContent = `— ${rows.length} series`;
+  render(rows);
+}
+
+function handleSearch(q) {
+  if (!q.trim()) { selectList(currentList); return; }
+  const results = ALL_DATA.filter(r => r.name.toLowerCase().includes(q.toLowerCase()));
+  document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('toolbarTitle').textContent = `Search: "${q}"`;
+  document.getElementById('toolbarCount').textContent = `— ${results.length} series`;
+  render(results);
+}
+
+function deleteRow(id) {
+  const idx = ALL_DATA.findIndex(r => r.id === id);
+  if (idx !== -1) {
+    const name = ALL_DATA[idx].name;
+    ALL_DATA.splice(idx, 1);
+    updateCounts();
+    selectList(currentList);
+    showToast(`Deleted "${name}"`);
+  }
+}
+
+function editRow(id) {
+  const row = ALL_DATA.find(r => r.id === id);
+  if (!row) return;
+  document.getElementById('modalTitle').textContent = 'Edit Series';
+  document.getElementById('modalName').value = row.name;
+  document.getElementById('modalDate').value = toDisplay(row.date);
+  const listMap = { Ending:'Ending', UpComing:'UpComing', FallEnding:'Fall Ending', Unknown:'Unknown' };
+  document.getElementById('modalList').value = listMap[row.list] || row.list;
+  document.getElementById('modal').dataset.editId = id;
+  document.getElementById('modal').style.display = 'flex';
+}
+
+function showModal() {
+  document.getElementById('modalTitle').textContent = 'Add Series';
+  document.getElementById('modalName').value = '';
+  document.getElementById('modalDate').value = new Date().toISOString().slice(0,10);
+  const listMap = { Ending:'Ending', UpComing:'UpComing', FallEnding:'Fall Ending', Unknown:'Unknown' };
+  document.getElementById('modalList').value = listMap[currentList] || 'Ending';
+  delete document.getElementById('modal').dataset.editId;
+  document.getElementById('modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('modalName').focus(), 50);
+}
+
+function saveModal(e) {
+  e.preventDefault();
+  const name = document.getElementById('modalName').value.trim();
+  const date = document.getElementById('modalDate').value.replace(/-/g,'');
+  const listRaw = document.getElementById('modalList').value;
+  const listMap = { 'Ending':'Ending','UpComing':'UpComing','Fall Ending':'FallEnding','Unknown':'Unknown' };
+  const list = listMap[listRaw] || listRaw;
+  const editId = document.getElementById('modal').dataset.editId;
+  if (editId) {
+    const row = ALL_DATA.find(r => r.id === +editId);
+    if (row) { row.name = name; row.date = date; row.list = list; }
+    showToast('Series updated');
+  } else {
+    ALL_DATA.push({ id: nextId++, name, date, list });
+    showToast('Series added');
+  }
+  document.getElementById('modal').style.display = 'none';
+  updateCounts();
+  selectList(currentList);
+}
+
+function hideModal(e) {
+  if (e.target.id === 'modal') document.getElementById('modal').style.display = 'none';
+}
+
+function openMyEpisodes(name) {
+  showToast(`Opening MyEpisodes for "${name}"...`);
+}
+
+function showImportToast() {
+  showToast('Import: 12 series imported (2 skipped)');
+}
+
+let toastTimer = null;
+function showToast(msg) {
+  let t = document.querySelector('.toast');
+  if (!t) { t = document.createElement('div'); t.className = 'toast'; document.body.appendChild(t); }
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.style.display = 'none'; }, 3000);
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeBtn').textContent = isDark ? '🌙' : '☀️';
+}
+
+// Init
+updateCounts();
+selectList('Ending');
+</script>
+</body>
+</html>
