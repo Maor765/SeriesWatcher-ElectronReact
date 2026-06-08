@@ -3,7 +3,10 @@ let browser: any = null
 async function lazyBrowser() {
   if (!browser) {
     const puppeteer = await import('puppeteer')
-    browser = await puppeteer.default.launch({ headless: true })
+    browser = await puppeteer.default.launch({
+      headless: false,
+      slowMo: 100,
+    })
   }
   return browser
 }
