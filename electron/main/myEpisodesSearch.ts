@@ -15,33 +15,35 @@ export async function searchMyEpisodes(showName: string): Promise<string | null>
     const browser = await lazyBrowser()
     const page = await browser.newPage()
 
-    page.setDefaultTimeout(10000)
-    page.setDefaultNavigationTimeout(10000)
+    page.setDefaultTimeout(8000)
+    page.setDefaultNavigationTimeout(8000)
 
-    // Step 1: Go to MyEpisodes home
+    // Step 1: Go to MyEpisodes home (fast load)
     console.log('[MyEpisodes] Going to home page...')
     await page.goto('https://www.myepisodes.com/', { waitUntil: 'domcontentloaded' })
 
-    // Step 2: Find and focus the search box
+    // Step 2: Find and click search box
     console.log('[MyEpisodes] Finding search box...')
     const searchBox = await page.$('input[type="text"]')
     if (!searchBox) {
-      console.log('[MyEpisodes] Search box not found')
       await page.close()
       return null
     }
 
-    // Step 3: Type the show name
-    console.log(`[MyEpisodes] Typing "${showName}"...`)
-    await searchBox.click({ delay: 10 })
-    await page.type('input[type="text"]', showName, { delay: 10 })
+    // Step 3: Type fast
+    console.log(`[MyEpisodes] Searching for "${showName}"...`)
+    await searchBox.click()
+    await page.type('input[type="text"]', showName, { delay: 5 })
 
-    // Step 4: Press Enter
-    console.log('[MyEpisodes] Pressing Enter...')
+    // Step 4: Submit
     await page.keyboard.press('Enter')
 
-    // Wait for results to load
-    await page.waitForNavigation({ waitUntil: 'domcontentloaded' }).catch(() => null)
+    // Wait for results table to appear (faster than navigation wait)
+    try {
+      await page.waitForSelector('a[href*="/epsbyshow/"]', { timeout: 5000 })
+    } catch {
+      console.log('[MyEpisodes] Results timeout')
+    }
 
     // Step 5 & 6: Find the exact match in the result list and click it
     console.log('[MyEpisodes] Looking for exact match in results...')

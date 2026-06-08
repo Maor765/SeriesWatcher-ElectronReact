@@ -11,9 +11,10 @@ interface Props {
   onEdit:   (s: Series) => void
   onDelete: (id: number) => void
   onContextMenu?: (x: number, y: number, series: Series) => void
+  onShowToast?: (message: string) => void
 }
 
-export default function SeriesPanel({ list, series, onEdit, onDelete, onContextMenu }: Props) {
+export default function SeriesPanel({ list, series, onEdit, onDelete, onContextMenu, onShowToast }: Props) {
   const { pc, pd, icon } = PANEL_COLORS[list]
   const dateHeader = list === 'Unknown' ? 'Last Check' : 'Date'
   const highlightPast = HIGHLIGHT_LISTS.has(list)
@@ -24,7 +25,8 @@ export default function SeriesPanel({ list, series, onEdit, onDelete, onContextM
       // Movies/Unknown: Google search only
       window.open(`https://www.google.com/search?q=${encodeURIComponent(name)}`, '_blank')
     } else {
-      // Series: find and open MyEpisodes show page, fall back to Google
+      // Series: show searching toast, find and open MyEpisodes show page
+      onShowToast?.(`Searching MyEpisodes for "${name}"...`)
       const showUrl = await window.electronAPI.myepisodes.search(name)
       if (showUrl) {
         window.open(showUrl, '_blank')

@@ -161,6 +161,7 @@ export default function App() {
               onEdit={setModal}
               onDelete={handleDelete}
               onContextMenu={(x, y, series) => setContextMenu({ x, y, series })}
+              onShowToast={setToast}
             />
           </div>
         </>
