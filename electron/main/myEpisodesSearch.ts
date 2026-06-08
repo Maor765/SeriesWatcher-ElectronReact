@@ -50,8 +50,8 @@ export async function searchMyEpisodes(showName: string): Promise<string | null>
     // Step 5 & 6: Find the exact match in the result list and click it
     console.log('[MyEpisodes] Looking for exact match in results...')
     const showUrl = await page.evaluate((name: string) => {
-      // Find all links with /show/ in href
-      const links = Array.from(document.querySelectorAll('a[href*="/show/"]')) as HTMLAnchorElement[]
+      // Find all links with /epsbyshow/ in href
+      const links = Array.from(document.querySelectorAll('a[href*="/epsbyshow/"]')) as HTMLAnchorElement[]
 
       console.log(`Found ${links.length} show links`)
       links.slice(0, 10).forEach((l, i) => {
