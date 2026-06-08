@@ -28,31 +28,31 @@
   --c-israeli:       #f472b6; --c-israeli-dim:       #2a0a18;
 }
 
-/* ── GitHub Warm light ── */
+/* ── GitHub Warm light (darkened) ── */
 :root[data-theme='light'] {
-  --bg:          #f6f8fa;
-  --surface:     #ffffff;
-  --surface2:    #f0f3f6;
-  --border:      #d0d7de;
-  --border-soft: #e8ebee;
+  --bg:          #e8ecf1;
+  --surface:     #f3f6fb;
+  --surface2:    #dfe6f0;
+  --border:      #c0c7d0;
+  --border-soft: #d8dfe8;
   --text-primary:   #1f2328;
   --text-secondary: #656d76;
-  --text-muted:     #9198a1;
-  --input-bg:    #f6f8fa;
-  --row-alt:     #f0f3f6;
-  --shadow:      rgba(0,0,0,0.08);
-  --past-bg:     #fef9c3;
-  --past-text:   #92400e;
-  --del-bg:      #fee2e2;
-  --del-text:    #dc2626;
+  --text-muted:     #8892a1;
+  --input-bg:    #e8ecf1;
+  --row-alt:     #dfe6f0;
+  --shadow:      rgba(0,0,0,0.12);
+  --past-bg:     #f5ead0;
+  --past-text:   #8a3a0e;
+  --del-bg:      #f5d9d9;
+  --del-text:    #d42426;
   --accent:      #0969da;
   --accent-text: #ffffff;
-  --scrollbar:   #d0d7de;
+  --scrollbar:   #c0c7d0;
 
-  --c-ending:        #0969da; --c-ending-dim:        #dbeafe;
-  --c-upcoming:      #1a7f37; --c-upcoming-dim:      #d1fae5;
-  --c-fallending:    #9a6700; --c-fallending-dim:    #fef9c3;
-  --c-unknown:       #7c3aed; --c-unknown-dim:       #ede9fe;
-  --c-upmovies:      #0891b2; --c-upmovies-dim:      #cffafe;
-  --c-israeli:       #db2777; --c-israeli-dim:       #fce7f3;
+  --c-ending:        #0969da; --c-ending-dim:        #d4e8f8;
+  --c-upcoming:      #1a7f37; --c-upcoming-dim:      #c8f0e0;
+  --c-fallending:    #9a6700; --c-fallending-dim:    #f5ead0;
+  --c-unknown:       #7c3aed; --c-unknown-dim:       #e8dff9;
+  --c-upmovies:      #0891b2; --c-upmovies-dim:      #c4f3f9;
+  --c-israeli:       #db2777; --c-israeli-dim:       #faddeb;
 }
