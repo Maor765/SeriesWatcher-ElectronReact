@@ -139,11 +139,11 @@ tbody tr.row-past .cell-date { color: var(--past-text); font-weight: 700; }
   border: 1px solid transparent; border-radius: 4px;
   font-size: 14px; padding: 6px 10px;
   cursor: pointer; margin-left: 4px;
-  font-family: inherit; line-height: 1;
+  font-family: inherit; line-height: 1.2;
   vertical-align: middle;
   text-decoration: none;
   background: var(--surface2); color: var(--text-secondary);
-  transition: border-color 0.12s, color 0.12s;
+  transition: border-color 0.12s, color 0.12s, background 0.12s;
 }
 .btn-action:hover { border-color: var(--pc, var(--accent)); color: var(--pc, var(--accent)); }
 
@@ -151,7 +151,7 @@ tbody tr.row-past .cell-date { color: var(--past-text); font-weight: 700; }
 .btn-edit:hover { background: var(--pc, var(--accent)); color: var(--bg); border-color: transparent; }
 
 .btn-delete { background: var(--del-bg); color: var(--del-text); }
-.btn-delete:hover { opacity: 0.75; border-color: transparent; color: var(--del-text); }
+.btn-delete:hover { background: color-mix(in srgb, var(--del-bg) 70%, var(--del-text) 20%); border-color: transparent; color: var(--del-text); font-weight: 700; }
 
 .btn-myep { border-color: var(--border); }
 
