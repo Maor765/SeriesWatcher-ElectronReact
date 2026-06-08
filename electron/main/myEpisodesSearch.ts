@@ -45,25 +45,30 @@ export async function searchMyEpisodes(showName: string): Promise<string | null>
 
     // Wait for navigation and results to load
     await page.waitForNavigation({ waitUntil: 'networkidle2' }).catch(() => null)
-    await page.waitForTimeout(1000)
+    await new Promise(resolve => setTimeout(resolve, 1500))
 
     // Step 5 & 6: Find the exact match in the result list and click it
     console.log('[MyEpisodes] Looking for exact match in results...')
     const showUrl = await page.evaluate((name: string) => {
-      // Find all links
-      const links = Array.from(document.querySelectorAll('a')) as HTMLAnchorElement[]
+      // Find all links with /show/ in href
+      const links = Array.from(document.querySelectorAll('a[href*="/show/"]')) as HTMLAnchorElement[]
 
-      console.log(`Found ${links.length} links total`)
+      console.log(`Found ${links.length} show links`)
+      links.slice(0, 10).forEach((l, i) => {
+        console.log(`  [${i}] "${l.textContent?.trim()}" → ${l.href}`)
+      })
 
-      // Find exact match
+      // Find exact match (case-insensitive, trim whitespace)
       const exactMatch = links.find(link => {
         const linkText = link.textContent?.trim().toLowerCase()
         const searchName = name.toLowerCase()
-        return linkText === searchName && link.href.includes('/show/')
+        const isExact = linkText === searchName
+        if (isExact) console.log(`✓ Exact match: "${link.textContent?.trim()}"`)
+        return isExact
       })
 
       if (exactMatch) {
-        console.log(`Exact match found: "${exactMatch.textContent}"`)
+        console.log(`Returning: ${exactMatch.href}`)
         return exactMatch.href
       }
 
