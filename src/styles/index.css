@@ -137,8 +137,8 @@ tbody tr.row-past .cell-date { color: var(--past-text); font-weight: 700; }
 .btn-action {
   display: inline-flex; align-items: center; justify-content: center;
   border: 1px solid transparent; border-radius: 4px;
-  font-size: 13px; padding: 3px 6px;
-  cursor: pointer; margin-left: 3px;
+  font-size: 16px; padding: 6px 10px;
+  cursor: pointer; margin-left: 4px;
   font-family: inherit; line-height: 1;
   vertical-align: middle;
   text-decoration: none;
