@@ -2,17 +2,36 @@ import type { Series, SeriesList } from '../../shared/types'
 import { isPastDate, toInputDate, HIGHLIGHT_LISTS } from '../../shared/types'
 import { PANEL_COLORS } from './TopBar'
 
+const GOOGLE_SEARCH_LISTS = new Set<SeriesList>(['Upcoming Movies', 'Unknown', 'Israeli'])
+
 interface Props {
   list: SeriesList
   series: Series[]
+  onEdit: (s: Series) => void
   onDelete: (id: number) => void
   onContextMenu?: (x: number, y: number, series: Series) => void
+  onShowToast?: (message: string) => void
 }
 
-export default function SeriesPanel({ list, series, onDelete, onContextMenu }: Props) {
+export default function SeriesPanel({ list, series, onEdit, onDelete, onContextMenu, onShowToast }: Props) {
   const { pc, pd, icon } = PANEL_COLORS[list]
   const dateHeader = list === 'Unknown' ? 'Last Check' : 'Date'
   const highlightPast = HIGHLIGHT_LISTS.has(list)
+  const useGoogle = GOOGLE_SEARCH_LISTS.has(list)
+
+  async function handleSearch(name: string) {
+    if (useGoogle) {
+      window.open(`https://www.google.com/search?q=${encodeURIComponent(name)}`, '_blank')
+    } else {
+      onShowToast?.(`Searching MyEpisodes for "${name}"...`)
+      const showUrl = await window.electronAPI.myepisodes.search(name)
+      if (showUrl) {
+        window.open(showUrl, '_blank')
+      } else {
+        window.open(`https://www.google.com/search?q=${encodeURIComponent(name)}`, '_blank')
+      }
+    }
+  }
 
   return (
     <div className="panel" style={{ '--pc': pc, '--pd': pd } as React.CSSProperties}>
@@ -24,9 +43,9 @@ export default function SeriesPanel({ list, series, onDelete, onContextMenu }: P
       <div className="panel-scroll">
         <table>
           <colgroup>
-            <col style={{ width: '55%' }} />
-            <col style={{ width: '27%' }} />
-            <col style={{ width: '18%' }} />
+            <col style={{ width: '42%' }} />
+            <col style={{ width: '22%' }} />
+            <col style={{ width: '36%' }} />
           </colgroup>
           <thead>
             <tr>
@@ -54,11 +73,9 @@ export default function SeriesPanel({ list, series, onDelete, onContextMenu }: P
                   <td title={s.name}>{s.name}</td>
                   <td className="cell-date">{toInputDate(s.date)}</td>
                   <td className="actions-cell">
-                    <button
-                      className="btn-action btn-delete"
-                      onClick={() => onDelete(s.id)}
-                      title="Delete"
-                    >🗑</button>
+                    <button className="btn-action btn-edit"   onClick={() => onEdit(s)}          title="Edit / Move">✏️</button>
+                    <button className="btn-action btn-delete" onClick={() => onDelete(s.id)}      title="Delete">🗑</button>
+                    <button className="btn-action btn-myep"   onClick={() => handleSearch(s.name)} title={useGoogle ? 'Google Search' : 'MyEpisodes'}>🔍</button>
                   </td>
                 </tr>
               )

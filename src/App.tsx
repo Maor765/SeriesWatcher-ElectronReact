@@ -146,14 +146,18 @@ export default function App() {
             <SeriesPanel
               list={listA}
               series={allSeries[listA]}
+              onEdit={setModal}
               onDelete={handleDelete}
               onContextMenu={(x, y, series) => setContextMenu({ x, y, series })}
+              onShowToast={setToast}
             />
             <SeriesPanel
               list={listB}
               series={allSeries[listB]}
+              onEdit={setModal}
               onDelete={handleDelete}
               onContextMenu={(x, y, series) => setContextMenu({ x, y, series })}
+              onShowToast={setToast}
             />
           </div>
         </>

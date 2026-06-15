@@ -1,17 +1,33 @@
 import { useState } from 'react'
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
 import type { Series, SeriesList } from '../../shared/types'
-import { SERIES_LISTS, toInputDate, fromInputDate, todayYYYYMMDD } from '../../shared/types'
+import { SERIES_LISTS, todayYYYYMMDD } from '../../shared/types'
 
 interface Props {
-  entry: Series | null             // null = add mode
+  entry: Series | null
   defaultList: SeriesList
   onSave:  (s: Omit<Series, 'id'> & { id?: number }) => Promise<void>
   onClose: () => void
 }
 
+function yyyymmddToDate(s: string): Date | null {
+  if (!s || s.length !== 8) return null
+  return new Date(+s.slice(0, 4), +s.slice(4, 6) - 1, +s.slice(6, 8))
+}
+
+function dateToYYYYMMDD(d: Date): string {
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}${m}${day}`
+}
+
 export default function SeriesModal({ entry, defaultList, onSave, onClose }: Props) {
   const [name, setName]   = useState(entry?.name ?? '')
-  const [date, setDate]   = useState(entry ? toInputDate(entry.date) : toInputDate(todayYYYYMMDD()))
+  const [date, setDate]   = useState<Date | null>(
+    entry ? yyyymmddToDate(entry.date) : yyyymmddToDate(todayYYYYMMDD())
+  )
   const [list, setList]   = useState<SeriesList>(entry?.list ?? defaultList)
   const [error, setError] = useState('')
 
@@ -19,7 +35,7 @@ export default function SeriesModal({ entry, defaultList, onSave, onClose }: Pro
     e.preventDefault()
     if (!name.trim()) { setError('Name is required'); return }
     setError('')
-    await onSave({ id: entry?.id, name: name.trim(), date: fromInputDate(date), list })
+    await onSave({ id: entry?.id, name: name.trim(), date: date ? dateToYYYYMMDD(date) : '', list })
   }
 
   return (
@@ -39,7 +55,18 @@ export default function SeriesModal({ entry, defaultList, onSave, onClose }: Pro
           </label>
           <label>
             <span>Date</span>
-            <input type="date" value={date} onChange={e => setDate(e.target.value)} />
+            <DatePicker
+              selected={date}
+              onChange={d => setDate(d)}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="DD/MM/YYYY"
+              showMonthDropdown
+              showYearDropdown
+              dropdownMode="select"
+              className="datepicker-input"
+              calendarClassName="datepicker-calendar"
+              wrapperClassName="datepicker-wrapper"
+            />
           </label>
           {error && <p className="form-error">{error}</p>}
           <div className="modal-actions">

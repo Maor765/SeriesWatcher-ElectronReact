@@ -44,11 +44,13 @@ declare global {
 
 export function toInputDate(yyyymmdd: string): string {
   if (!yyyymmdd || yyyymmdd.length !== 8) return ''
-  return `${yyyymmdd.slice(0, 4)}-${yyyymmdd.slice(4, 6)}-${yyyymmdd.slice(6, 8)}`
+  return `${yyyymmdd.slice(6, 8)}/${yyyymmdd.slice(4, 6)}/${yyyymmdd.slice(0, 4)}`
 }
 
-export function fromInputDate(yyyy_mm_dd: string): string {
-  return yyyy_mm_dd.replace(/-/g, '')
+export function fromInputDate(ddmmyyyy: string): string {
+  const parts = ddmmyyyy.split('/')
+  if (parts.length === 3 && parts[2].length === 4) return parts[2] + parts[1] + parts[0]
+  return ddmmyyyy.replace(/\D/g, '')
 }
 
 export function todayYYYYMMDD(): string {
