@@ -1,6 +1,5 @@
 import React from 'react'
 import type { Theme, SeriesList } from '../../shared/types'
-import { SERIES_LISTS } from '../../shared/types'
 
 // Panel colour map (must match themes.css)
 export const PANEL_COLORS: Record<SeriesList, { pc: string; pd: string; icon: string }> = {
@@ -18,42 +17,29 @@ interface Props {
   searchQuery: string
   onSearch: (q: string) => void
   onAdd: () => void
-  counts: Record<SeriesList, number>
 }
 
-function TopBar({ theme, onThemeToggle, searchQuery, onSearch, onAdd, counts }: Props) {
-  const total = Object.values(counts).reduce((s, n) => s + n, 0)
+function TopBar({ theme, onThemeToggle, searchQuery, onSearch, onAdd }: Props) {
   return (
-    <>
-      <div className="topbar">
-        <span className="topbar-title">📺 SeriesWatcher</span>
-        <div className="topbar-right">
-          <div className="search-wrap">
-            <span className="search-icon">🔍</span>
-            <input
-              className="search-input"
-              type="text"
-              placeholder="Search all series..."
-              value={searchQuery}
-              onChange={e => onSearch(e.target.value)}
-            />
-          </div>
-          <button className="btn-add-primary" onClick={onAdd}>+ Add Series</button>
-          <button className="btn-icon" onClick={onThemeToggle} title="Toggle theme">
-            {theme === 'dark' ? '☀️' : '🌙'}
-          </button>
+    <div className="topbar">
+      <span className="topbar-title">📺 SeriesWatcher</span>
+      <div className="topbar-right">
+        <div className="search-wrap">
+          <span className="search-icon">🔍</span>
+          <input
+            className="search-input"
+            type="text"
+            placeholder="Search all series..."
+            value={searchQuery}
+            onChange={e => onSearch(e.target.value)}
+          />
         </div>
+        <button className="btn-add-primary" onClick={onAdd}>+ Add</button>
+        <button className="btn-icon" onClick={onThemeToggle} title="Toggle theme">
+          {theme === 'dark' ? '☀️' : '🌙'}
+        </button>
       </div>
-      <div className="counts-strip">
-        {SERIES_LISTS.map(list => (
-          <div key={list} className="count-chip">
-            <div className="count-dot" style={{ background: PANEL_COLORS[list].pc }} />
-            {list} <strong>{counts[list] ?? 0}</strong>
-          </div>
-        ))}
-        <span className="counts-total">{total} total</span>
-      </div>
-    </>
+    </div>
   )
 }
 
